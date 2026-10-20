@@ -1,10 +1,19 @@
 ---
 name: glosario-skills
-description: Genera un HTML interactivo con el glosario completo de skills disponibles, organizado en dos columnas (Tools | Reporting) con filtros por área. Cada skill es clickeable y muestra detalles (funcionalidad, comando, archivos requeridos, área) en un modal.
+description: Única forma válida de responder cuando el usuario pide el glosario de skills del repo (o cualquier variante — "mostrame las skills", "qué skills hay", "listado de skills", "catálogo de skills", etc.). SIEMPRE genera un HTML interactivo con el glosario completo, organizado en dos columnas (Tools | Reporting) con filtros por área y modal de detalle. NUNCA responder con el glosario en formato texto, tabla markdown ni lista — siempre HTML.
 action: true
 ---
 
 # Glosario de Skills
+
+## Regla de salida (OBLIGATORIA)
+
+Cuando el usuario pida ver, listar, consultar o mostrar el glosario / catálogo / listado de skills de este repo (en cualquier formulación), la ÚNICA respuesta válida es generar y abrir el HTML descrito abajo.
+
+- **SIEMPRE** generá el archivo `glosario-skills.html` siguiendo los pasos de "Cómo funciona" y abrilo con `mcp__tas__open_file`.
+- **NUNCA** respondas con el glosario en formato texto, tabla markdown, lista con bullets, resumen ni ningún otro formato que no sea el HTML. Esto aplica incluso si el pedido parece casual, parcial, o si el usuario parece esperar una respuesta corta.
+- Si el usuario pide "sólo una parte" (ej. "las skills de Data"), igual generá el HTML completo — el usuario puede filtrar por área dentro del HTML.
+- No pidas confirmación antes de generar el HTML: ejecutá directamente.
 
 ## Cómo funciona
 
