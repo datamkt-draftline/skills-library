@@ -14,9 +14,9 @@ Esta skill tiene dos modos:
 
 Si el usuario pregunta cómo funciona, pide el template, o quiere saber la estructura del Excel:
 
-1. Abrí el template con `mcp__tas__open_file`:
+1. Abrí el template con `mcp__tas__open_file` — está en la misma carpeta que este SKILL.md:
    ```
-   /home/agent/work/2026-09-14_9muktr/gantt-template.xlsx
+   .claude/skills/gantt/gantt-template.xlsx
    ```
 
 2. Explicá brevemente la estructura:
@@ -33,7 +33,7 @@ Si el usuario pregunta cómo funciona, pide el template, o quiere saber la estru
 
 2. Ejecutá el generador (sin segundo argumento: el script genera el HTML como `{titulo-slug}-gantt.html` en el mismo directorio del xlsx, usando el `Titulo` de la hoja `Config`):
    ```bash
-   python3 /home/agent/work/2026-09-14_9muktr/.claude/skills/gantt/scripts/generate_gantt.py "<ruta-al-xlsx>"
+   python3 .claude/skills/gantt/scripts/generate_gantt.py "<ruta-al-xlsx>"
    ```
    El comando imprime en stdout la ruta del HTML generado — usala para el paso siguiente.
 
