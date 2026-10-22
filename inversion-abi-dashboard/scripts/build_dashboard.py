@@ -60,15 +60,15 @@ BRAND_ORDER = [
 ]
 
 BRAND_COLORS = {
-    "Quilmes": "#f6c342",
-    "Patagonia": "#2e7d32",
-    "Brahma": "#1a73e8",
-    "Stella Artois": "#b91c1c",
-    "Michelob": "#8b5cf6",
-    "Budweiser": "#ef4444",
+    "Quilmes": "#1E88E5",
+    "Patagonia": "#43A047",
+    "Brahma": "#E53935",
+    "Stella Artois": "#455A64",
+    "Michelob": "#7B1FA2",
+    "Budweiser": "#EF5350",
     "Bud66": "#f97316",
-    "Corona": "#f59e0b",
-    "Andes": "#06b6d4",
+    "Corona": "#F9A825",
+    "Andes": "#795548",
     "Patricia": "#a855f7",
     "Pilsen": "#eab308",
     "Zillertal": "#14b8a6",
