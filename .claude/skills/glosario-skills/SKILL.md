@@ -228,9 +228,9 @@ Escapá las comillas simples en los atributos `onclick` con `\'`. Si `items` est
       radial-gradient(ellipse 55% 42% at 50% 10%, rgba(255,209,0,0.35) 0%, rgba(255,209,0,0.08) 55%, rgba(255,209,0,0) 80%),
       var(--bg);
   }
-  .wrap { max-width: 1360px; margin: 0 auto; padding: 40px 28px 64px; }
-  header.title { text-align: center; margin-bottom: 44px; }
-  header.title img { width: min(520px, 80%); height: auto; display: block; margin: 0 auto; }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 16px 28px 48px; }
+  header.title { text-align: center; margin-bottom: 18px; }
+  header.title img { width: min(380px, 60%); height: auto; display: block; margin: 0 auto; }
   .pillars-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -288,8 +288,8 @@ Escapá las comillas simples en los atributos `onclick` con `\'`. Si `items` est
 
   .subtitle {
     text-align: center;
-    margin: -32px 0 12px;
-    font-size: 18px;
+    margin: -8px 0 8px;
+    font-size: 16px;
     font-weight: 400;
     letter-spacing: .06em;
     text-transform: uppercase;
@@ -300,7 +300,7 @@ Escapá las comillas simples en los atributos `onclick` con `\'`. Si `items` est
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 36px;
+    margin-bottom: 18px;
   }
   .legend-item {
     font-size: 11px;
