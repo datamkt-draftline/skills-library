@@ -280,6 +280,8 @@ Escapá las comillas simples en los atributos `onclick` con `\'`. Si `items` est
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .item-tool   { background: #FFF9EA; border-color: #E8D29A; }
+  .item-report { background: #F6F8FB; border-color: #B9C5D9; }
   .item:hover { background: #FFF0B8; border-color: #B88A2A; color: var(--ink); transform: translateY(-1px); }
   .item-tool:hover   { background: #FFF4D6; border-color: #D4A843; color: var(--ink); transform: translateY(-1px); }
   .item-report:hover { background: #EEF1F7; border-color: #8099C0; color: var(--ink); transform: translateY(-1px); }
