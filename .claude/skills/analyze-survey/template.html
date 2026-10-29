@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{SURVEY_TITLE}} — Resultados de Encuesta</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #091520;
+  --card: #0E2236;
+  --card2: #132C44;
+  --teal: #00C2CB;
+  --teal2: #00E8F3;
+  --blue: #4A9FD4;
+  --coral: #FF6B6B;
+  --gold: #FFD166;
+  --green: #3DAB6A;
+  --red: #C24040;
+  --orange: #F08030;
+  --pink: #E87AB0;
+  --text: #E0F0FF;
+  --muted: #7A9BB8;
+  --border: #1A3A5A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+/* NAV */
+#topbar { position: sticky; top: 0; z-index: 100; background: rgba(9,21,32,.97); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+#filter-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+/* DROPDOWNS */
+.dd-wrap { position: relative; }
+.dd-btn { display: flex; align-items: center; gap: 7px; padding: 6px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 12px; cursor: pointer; transition: border-color .15s; white-space: nowrap; font-family: inherit; }
+.dd-btn:hover, .dd-btn.open { border-color: var(--teal); }
+.dd-dlabel { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.dd-val { font-weight: 600; color: var(--teal); max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+.dd-arrow { color: var(--muted); font-size: 9px; transition: transform .15s; margin-left: 2px; }
+.dd-btn.open .dd-arrow { transform: rotate(180deg); }
+.dd-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 180px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.6); z-index: 200; overflow: hidden; }
+.dd-panel.open { display: block; }
+.dd-item { padding: 8px 14px; font-size: 13px; color: var(--muted); cursor: pointer; transition: background .1s; display: flex; align-items: center; gap: 8px; }
+.dd-item:hover { background: var(--card2); color: var(--text); }
+.dd-item.sel { color: var(--teal); font-weight: 600; }
+.dd-item.sel::before { content: '✓'; font-size: 11px; }
+.dd-item:not(.sel)::before { content: ''; display: inline-block; width: 11px; }
+.dd-check-box { width: 14px; height: 14px; border: 1px solid var(--border); border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0; transition: all .1s; }
+.dd-item.sel .dd-check-box { background: var(--blue); border-color: var(--blue); color: #000; }
+
+#tab-bar { display: flex; gap: 0; padding: 0 20px; overflow-x: auto; }
+.tab { padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* SECTIONS */
+.section { display: none; padding: 24px 20px; max-width: 1100px; margin: 0 auto; }
+.section.active { display: block; }
+
+/* KPI CARDS */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+.kpi-val { font-size: 2.4rem; font-weight: 700; line-height: 1; }
+.kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.kpi-accent { color: var(--teal); }
+.kpi-green { color: var(--green); }
+.kpi-gold { color: var(--gold); }
+.kpi-coral { color: var(--coral); }
+
+/* GRID */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 768px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+
+/* CHART CONTAINER */
+.chart-wrap { position: relative; }
+
+/* PILLS */
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.pill { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.pill-teal { background: rgba(0,194,203,.15); color: var(--teal); }
+.pill-green { background: rgba(61,171,106,.15); color: var(--green); }
+.pill-gold { background: rgba(255,209,102,.15); color: var(--gold); }
+.pill-coral { background: rgba(255,107,107,.15); color: var(--coral); }
+
+/* INSIGHT CARDS */
+.insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.insight-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; border-left: 3px solid var(--teal); }
+.insight-card.gold { border-left-color: var(--gold); }
+.insight-card.green { border-left-color: var(--green); }
+.insight-card.coral { border-left-color: var(--coral); }
+.insight-card.blue { border-left-color: var(--blue); }
+.insight-card.pink { border-left-color: var(--pink); }
+.insight-num { font-size: 2rem; font-weight: 700; color: var(--teal); }
+.insight-card.gold .insight-num { color: var(--gold); }
+.insight-card.green .insight-num { color: var(--green); }
+.insight-card.coral .insight-num { color: var(--coral); }
+.insight-card.blue .insight-num { color: var(--blue); }
+.insight-card.pink .insight-num { color: var(--pink); }
+.insight-title { font-size: 14px; font-weight: 600; margin: 6px 0 4px; }
+.insight-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* HEADER */
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--teal); }
+.page-header .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+/* N label */
+.n-badge { font-size: 11px; color: var(--muted); background: var(--card2); padding: 2px 8px; border-radius: 10px; display: inline-block; margin-left: 6px; vertical-align: middle; }
+
+/* SCORE GAUGE */
+.score-big { text-align: center; padding: 24px 0; }
+.score-big .val { font-size: 4rem; font-weight: 800; color: var(--teal); line-height: 1; }
+.score-big .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.score-big .sub { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+/* INTENCION COLOR SCALE */
+.intent-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; margin: 12px 0 6px; }
+.intent-seg { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: rgba(0,0,0,.7); transition: width .3s; }
+
+/* SCROLL */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="filter-bar">
+    <div class="dd-wrap" id="dd-instancia">
+      <button class="dd-btn" onclick="toggleDD('dd-instancia')">
+        <span class="dd-dlabel">Audiencia</span>
+        <span class="dd-val" id="ddval-instancia">Todas</span>
+        <span class="dd-arrow">▾</span>
+      </button>
+      <div class="dd-panel" id="ddpanel-instancia"></div>
+    </div>
+    <div class="dd-wrap" id="dd-genero">
+      <button class="dd-btn" onclick="toggleDD('dd-genero')">
+        <span class="dd-dlabel">Género</span>
+        <span class="dd-val" id="ddval-genero">Todos</span>
+        <span class="dd-arrow">▾</span>
+      </button>
+      <div class="dd-panel" id="ddpanel-genero"></div>
+    </div>
+    <div class="dd-wrap" id="dd-edad">
+      <button class="dd-btn" onclick="toggleDD('dd-edad')">
+        <span class="dd-dlabel">Edad</span>
+        <span class="dd-val" id="ddval-edad">Todas</span>
+        <span class="dd-arrow">▾</span>
+      </button>
+      <div class="dd-panel" id="ddpanel-edad"></div>
+    </div>
+  </div>
+  <div id="tab-bar">
+    <div class="tab active" onclick="showSection('resumen', this)">Resumen</div>
+    <div class="tab" onclick="showSection('audiencia', this)">Audiencia</div>
+    <div class="tab" onclick="showSection('puntaje', this)">{{TAB_PUNTAJE}}</div>
+    <div class="tab" onclick="showSection('momentos', this)">{{TAB_MOMENTOS}}</div>
+    <div class="tab" onclick="showSection('intencion', this)">{{TAB_INTENCION}}</div>
+    <div class="tab" onclick="showSection('insights', this)">Insights</div>
+  </div>
+</div>
+
+<!-- RESUMEN -->
+<div class="section active" id="sec-resumen">
+  <div class="page-header">
+    <h1>{{SURVEY_TITLE_H1}}</h1>
+    <div class="sub">{{SURVEY_SUBTITLE}}</div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Respondentes</div>
+      <div class="kpi-val kpi-accent" id="kpi-n">—</div>
+      <div class="kpi-sub" id="kpi-n-sub">Total de encuestados</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">{{KPI_SCORE_LABEL}}</div>
+      <div class="kpi-val kpi-green" id="kpi-score">—</div>
+      <div class="kpi-sub" id="kpi-score-sub">Escala del 1 al 10</div>
+      <div style="margin-top:8px" id="kpi-score-bench"></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Intención de compra</div>
+      <div class="kpi-val kpi-gold" id="kpi-intent">—</div>
+      <div class="kpi-sub" id="kpi-intent-sub">Definitivamente + Probablemente sí</div>
+      <div style="margin-top:8px" id="kpi-intent-bench"></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">{{KPI_MOMENTO_LABEL_SHORT}}</div>
+      <div class="kpi-val kpi-teal" style="font-size:1.5rem;line-height:1.3" id="kpi-momento">—</div>
+      <div class="kpi-sub" id="kpi-momento-sub"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">{{TAB_PUNTAJE}}</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="chart-res-score"></canvas></div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">🎯 {{BENCHMARK_SCORE_TEXT}}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">{{TAB_INTENCION}}</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="chart-res-intent"></canvas></div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">🎯 {{BENCHMARK_INTENT_TEXT}}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">{{CARD_MOMENTOS}}</div>
+    <div class="chart-wrap" style="height:180px"><canvas id="chart-res-momentos"></canvas></div>
+  </div>
+
+  <div class="pills" style="margin-top:20px" id="res-pills"></div>
+</div>
+
+<!-- AUDIENCIA -->
+<div class="section" id="sec-audiencia">
+  <div class="page-header">
+    <h1>Audiencia</h1>
+    <div class="sub" id="aud-sub">Perfil de los respondentes</div>
+  </div>
+  <div class="grid3">
+    <div class="card">
+      <div class="card-title">Género</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="chart-genero"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Rango etario</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="chart-edad"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Por instancia</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="chart-instancia"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- PUNTAJE -->
+<div class="section" id="sec-puntaje">
+  <div class="page-header">
+    <h1>{{TAB_PUNTAJE}}</h1>
+    <div class="sub">{{Q_PUNTAJE}}</div>
+  </div>
+  <div class="grid2">
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="score-big">
+        <div class="val" id="score-avg">—</div>
+        <div class="label">Promedio general</div>
+        <div class="sub" id="score-distrib"></div>
+      </div>
+      <hr class="divider">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+        <div>
+          <div style="font-size:1.5rem;font-weight:700;color:var(--green)" id="pct-high">—</div>
+          <div style="font-size:11px;color:var(--muted)">Puntaje 8-10</div>
+          <div style="font-size:11px;color:var(--muted)" id="n-high"></div>
+        </div>
+        <div>
+          <div style="font-size:1.5rem;font-weight:700;color:var(--gold)" id="pct-mid">—</div>
+          <div style="font-size:11px;color:var(--muted)">Puntaje 6-7</div>
+          <div style="font-size:11px;color:var(--muted)" id="n-mid"></div>
+        </div>
+        <div>
+          <div style="font-size:1.5rem;font-weight:700;color:var(--coral)" id="pct-low">—</div>
+          <div style="font-size:11px;color:var(--muted)">Puntaje 1-5</div>
+          <div style="font-size:11px;color:var(--muted)" id="n-low"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Distribución de puntaje</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chart-scores"></canvas></div>
+      <div style="margin-top:12px;padding:8px 12px;background:rgba(61,171,106,.1);border-left:3px solid #3DAB6A;border-radius:0 6px 6px 0;font-size:12px;color:var(--muted)">
+        🎯 {{BENCHMARK_SCORE_DETAIL}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOMENTOS -->
+<div class="section" id="sec-momentos">
+  <div class="page-header">
+    <h1>{{TAB_MOMENTOS}}</h1>
+    <div class="sub">{{Q_MOMENTOS}}</div>
+  </div>
+  <div class="card">
+    <div class="chart-wrap" style="height:280px"><canvas id="chart-momentos"></canvas></div>
+  </div>
+</div>
+
+<!-- INTENCION -->
+<div class="section" id="sec-intencion">
+  <div class="page-header">
+    <h1>{{TAB_INTENCION}}</h1>
+    <div class="sub">{{Q_INTENCION}}</div>
+  </div>
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi-card">
+      <div class="kpi-label">Intención positiva</div>
+      <div class="kpi-val kpi-green" id="int-pos-pct">—</div>
+      <div class="kpi-sub" id="int-pos-n">Def + Prob sí</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Indecisos</div>
+      <div class="kpi-val kpi-gold" id="int-neu-pct">—</div>
+      <div class="kpi-sub" id="int-neu-n">No sé si la compraría</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Intención negativa</div>
+      <div class="kpi-val kpi-coral" id="int-neg-pct">—</div>
+      <div class="kpi-sub" id="int-neg-n">Prob + Def no</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Barra de intención</div>
+    <div style="position:relative">
+      <div class="intent-bar" id="intent-stacked"></div>
+      <div id="benchmark-70-line" style="position:absolute;top:0;bottom:0;left:70%;width:2px;background:#FFD166;pointer-events:none;"></div>
+    </div>
+    <div style="margin-top:6px;display:flex;align-items:center;gap:6px;font-size:11px;color:#FFD166">
+      <span style="display:inline-block;width:10px;height:2px;background:#FFD166;border-radius:1px"></span>
+      Benchmark: ≥ 70% intención positiva
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px">
+      <span style="font-size:11px;color:var(--muted)"><span style="color:#3DAB6A">■</span> Definitivamente sí</span>
+      <span style="font-size:11px;color:var(--muted)"><span style="color:#7CCF9B">■</span> Probablemente sí</span>
+      <span style="font-size:11px;color:var(--muted)"><span style="color:#FFD166">■</span> No sé</span>
+      <span style="font-size:11px;color:var(--muted)"><span style="color:#F08030">■</span> Probablemente no</span>
+      <span style="font-size:11px;color:var(--muted)"><span style="color:#C24040">■</span> Definitivamente no</span>
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div class="section" id="sec-insights">
+  <div class="page-header">
+    <h1>Hallazgos clave</h1>
+    <div class="sub">{{INSIGHTS_SUBTITLE}}</div>
+  </div>
+  <div class="insight-grid">
+    <div class="insight-card green">
+      <div class="insight-num" id="ins1-num">—</div>
+      <div class="insight-title">{{INS1_TITLE}}</div>
+      <div class="insight-desc">{{INS1_DESC}}</div>
+    </div>
+    <div class="insight-card gold">
+      <div class="insight-num" id="ins2-num">—</div>
+      <div class="insight-title">{{INS2_TITLE}}</div>
+      <div class="insight-desc">{{INS2_DESC}}</div>
+    </div>
+    <div class="insight-card teal">
+      <div class="insight-num" id="ins3-num">—</div>
+      <div class="insight-title">{{INS3_TITLE}}</div>
+      <div class="insight-desc">{{INS3_DESC}}</div>
+    </div>
+    <div class="insight-card blue">
+      <div class="insight-num" id="ins4-num">—</div>
+      <div class="insight-title">{{INS4_TITLE}}</div>
+      <div class="insight-desc">{{INS4_DESC}}</div>
+    </div>
+    <div class="insight-card coral">
+      <div class="insight-num" id="ins5-num">—</div>
+      <div class="insight-title">{{INS5_TITLE}}</div>
+      <div class="insight-desc">{{INS5_DESC}}</div>
+    </div>
+    <div class="insight-card pink">
+      <div class="insight-num" id="ins6-num">—</div>
+      <div class="insight-title">{{INS6_TITLE}}</div>
+      <div class="insight-desc">{{INS6_DESC}}</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const RAW = [{{RAW_DATA}}];
+
+// ---------- FILTERS ----------
+let filters = { instancia: 'all', genero: 'all', edad: [] };
+
+function getFiltered() {
+  return RAW.filter(r => {
+    if (filters.instancia !== 'all' && r.instancia !== filters.instancia) return false;
+    if (filters.genero !== 'all' && r.genero !== filters.genero) return false;
+    if (filters.edad.length > 0 && !filters.edad.includes(r.edad)) return false;
+    return true;
+  });
+}
+
+function setFilter(group, val, el) {
+  filters[group] = val;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderAll();
+}
+
+function toggleEdad(val, el) {
+  const idx = filters.edad.indexOf(val);
+  if (idx === -1) { filters.edad.push(val); el.classList.add('multi-active'); }
+  else { filters.edad.splice(idx, 1); el.classList.remove('multi-active'); }
+  renderAll();
+}
+
+// ---------- NAV ----------
+function showSection(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  else document.querySelectorAll('.tab').forEach(t => { if ((t.getAttribute('onclick')||'').includes("'"+name+"'")) t.classList.add('active'); });
+}
+
+// ---------- CHART REGISTRY ----------
+const charts = {};
+function mkChart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  charts[id] = new Chart(ctx, cfg);
+}
+
+// ---------- HELPERS ----------
+function pct(n, total) { return total ? Math.round(n / total * 100) : 0; }
+function pctStr(n, total) { return pct(n, total) + '%'; }
+function avg(arr) { return arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : 0; }
+
+const INTENT_ORDER = [{{INTENT_ORDER}}];
+const INTENT_COLORS = ['#3DAB6A','#7CCF9B','#FFD166','#F08030','#C24040'];
+const MOMENTO_ORDER = [{{MOMENTO_ORDER}}];
+const MOMENTO_SHORT = [{{MOMENTO_SHORT}}];
+
+const TEAL = '#00C2CB';
+const SCORE_COLORS = {
+  9:'#3DAB6A', 8:'#7CCF9B', 7:'#FFD166', 6:'#F0A020', 5:'#F08030', 4:'#E06040', 3:'#C24040', 2:'#A02020', 1:'#801010', 10:'#00C2CB'
+};
+
+Chart.defaults.color = '#7A9BB8';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.font.size = 12;
+
+// ---------- DROPDOWN LOGIC ----------
+function toggleDD(id) {
+  const wrap = document.getElementById(id);
+  const btn = wrap.querySelector('.dd-btn');
+  const panel = wrap.querySelector('.dd-panel');
+  const isOpen = panel.classList.contains('open');
+  closeAllDD();
+  if (!isOpen) { panel.classList.add('open'); btn.classList.add('open'); }
+}
+
+function closeAllDD() {
+  document.querySelectorAll('.dd-panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.dd-btn').forEach(b => b.classList.remove('open'));
+}
+
+// ---------- BUILD FILTER DROPDOWNS ----------
+function buildFilters() {
+  // Instancia
+  const instOpts = [{{INSTANCIA_OPTS}}];
+  const pInst = document.getElementById('ddpanel-instancia');
+  instOpts.forEach(({v,l}) => {
+    const d = document.createElement('div');
+    d.className = 'dd-item' + (v==='all' ? ' sel' : '');
+    d.textContent = l;
+    d.onclick = () => {
+      filters.instancia = v;
+      document.getElementById('ddval-instancia').textContent = l;
+      pInst.querySelectorAll('.dd-item').forEach(i => i.classList.remove('sel'));
+      d.classList.add('sel');
+      closeAllDD();
+      renderAll();
+    };
+    pInst.appendChild(d);
+  });
+
+  // Género
+  const genOpts = [{v:'all',l:'Todos'},{v:'Femenino',l:'Femenino'},{v:'Masculino',l:'Masculino'},{v:'Otro',l:'Otro'}];
+  const pGen = document.getElementById('ddpanel-genero');
+  genOpts.forEach(({v,l}) => {
+    const d = document.createElement('div');
+    d.className = 'dd-item' + (v==='all' ? ' sel' : '');
+    d.textContent = l;
+    d.onclick = () => {
+      filters.genero = v;
+      document.getElementById('ddval-genero').textContent = l;
+      pGen.querySelectorAll('.dd-item').forEach(i => i.classList.remove('sel'));
+      d.classList.add('sel');
+      closeAllDD();
+      renderAll();
+    };
+    pGen.appendChild(d);
+  });
+
+  // Edad (multi-select con checkboxes)
+  const edades = ['18-24 años','25-34 años','35-44 años','45-54 años','+55 años'];
+  const pEd = document.getElementById('ddpanel-edad');
+  edades.forEach(v => {
+    const d = document.createElement('div');
+    d.className = 'dd-item';
+    d.innerHTML = `<span class="dd-check-box"></span>${v}`;
+    d.onclick = () => {
+      const idx = filters.edad.indexOf(v);
+      if (idx === -1) { filters.edad.push(v); d.classList.add('sel'); d.querySelector('.dd-check-box').textContent = '✓'; }
+      else { filters.edad.splice(idx, 1); d.classList.remove('sel'); d.querySelector('.dd-check-box').textContent = ''; }
+      const sel = filters.edad.length;
+      document.getElementById('ddval-edad').textContent = sel === 0 ? 'Todas' : `${sel} sel.`;
+      renderAll();
+    };
+    pEd.appendChild(d);
+  });
+
+  // Close on outside click
+  document.addEventListener('click', e => { if (!e.target.closest('.dd-wrap')) closeAllDD(); });
+}
+
+// ---------- RENDERS ----------
+function renderResumen() {
+  const d = getFiltered();
+  const N = d.length;
+  const scores = d.filter(r => r.puntaje).map(r => r.puntaje);
+  const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
+  const posIntent = d.filter(r => r.intencion === INTENT_ORDER[0] || r.intencion === INTENT_ORDER[1]).length;
+  const momentoCounts = {};
+  d.forEach(r => { momentoCounts[r.momento] = (momentoCounts[r.momento]||0)+1; });
+  const topMomento = MOMENTO_ORDER.reduce((a,b)=>(momentoCounts[a]||0)>=(momentoCounts[b]||0)?a:b, MOMENTO_ORDER[0]);
+  const topMomentoN = momentoCounts[topMomento]||0;
+
+  document.getElementById('kpi-n').textContent = N;
+  document.getElementById('kpi-n-sub').textContent = `${filters.instancia === 'all' ? '4 instancias' : filters.instancia}`;
+  document.getElementById('kpi-score').textContent = avgScore;
+  document.getElementById('kpi-intent').textContent = pctStr(posIntent, N);
+  document.getElementById('kpi-intent-sub').textContent = `${posIntent} respondentes`;
+  document.getElementById('kpi-momento').textContent = MOMENTO_SHORT[MOMENTO_ORDER.indexOf(topMomento)] || topMomento;
+  document.getElementById('kpi-momento-sub').textContent = `${topMomentoN} | ${pctStr(topMomentoN, N)}`;
+
+  // Benchmark badges
+  const scoreAbove = parseFloat(avgScore) >= 7;
+  document.getElementById('kpi-score-bench').innerHTML = scoreAbove
+    ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(61,171,106,.18);color:#3DAB6A;font-weight:600">▲ sobre benchmark (+7)</span>`
+    : `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(194,64,64,.18);color:#FF6B6B;font-weight:600">▼ bajo benchmark (+7)</span>`;
+  const intentAbove = pct(posIntent, N) >= 70;
+  document.getElementById('kpi-intent-bench').innerHTML = intentAbove
+    ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(61,171,106,.18);color:#3DAB6A;font-weight:600">▲ sobre benchmark (70%)</span>`
+    : `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(194,64,64,.18);color:#FF6B6B;font-weight:600">▼ bajo benchmark (70%)</span>`;
+
+  // Pills
+  const pills = document.getElementById('res-pills');
+  pills.innerHTML = `
+    <span class="pill pill-green">Agrado promedio ${avgScore}/10</span>
+    <span class="pill pill-green">${pctStr(posIntent,N)} con intención de compra positiva</span>
+    <span class="pill pill-teal">Playa & aire libre = momento #1 (${pctStr(topMomentoN,N)})</span>
+    <span class="pill pill-teal">${pct(d.filter(r=>r.edad==='18-24 años'||r.edad==='25-34 años').length,N)}% tiene entre 18 y 34 años</span>
+  `;
+
+  // Score chart
+  const scoreDist = {};
+  for (let i=1;i<=10;i++) scoreDist[i]=0;
+  scores.forEach(s=>scoreDist[s]=(scoreDist[s]||0)+1);
+  const scoreLabels = ['1','2','3','4','5','6','7','8','9','10'];
+  const scoreData = scoreLabels.map(s=>scoreDist[parseInt(s)]||0);
+  mkChart('chart-res-score', {
+    type: 'bar',
+    data: {
+      labels: scoreLabels,
+      datasets: [{ data: scoreData,
+        backgroundColor: scoreLabels.map(s => parseInt(s)>=8?'#3DAB6A': parseInt(s)>=6?'#FFD166':'#C24040'),
+        borderRadius: 4, borderSkipped: false }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`N: ${c.raw} | ${pctStr(c.raw,scores.length)}`}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.04)'}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{stepSize:10}}} }
+  });
+
+  // Intent chart
+  const intentData = INTENT_ORDER.map(k=>d.filter(r=>r.intencion===k).length);
+  mkChart('chart-res-intent', {
+    type: 'doughnut',
+    data: { labels: ['Def sí','Prob sí','No sé','Prob no','Def no'], datasets:[{data:intentData,backgroundColor:INTENT_COLORS,borderWidth:0}] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins:{legend:{position:'right',labels:{boxWidth:12,padding:8,font:{size:11}}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw} (${pctStr(c.raw,N)})`}}} }
+  });
+
+  // Momentos chart (sorted by volume)
+  const momentoPairsRes = MOMENTO_ORDER.map((k,i)=>({k,short:MOMENTO_SHORT[i],n:momentoCounts[k]||0})).sort((a,b)=>b.n-a.n);
+  mkChart('chart-res-momentos', {
+    type: 'bar',
+    data: { labels: momentoPairsRes.map(p=>p.short),
+      datasets:[{data:momentoPairsRes.map(p=>p.n), backgroundColor:TEAL, borderRadius:4, borderSkipped:false}] },
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} | ${pctStr(c.raw,N)}`}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.04)'}},y:{grid:{display:false},ticks:{font:{size:11}}}} }
+  });
+}
+
+function renderAudiencia() {
+  const d = getFiltered();
+  const N = d.length;
+  document.getElementById('aud-sub').textContent = `Perfil de los ${N} respondentes filtrados`;
+
+  // Género
+  const genKeys = ['Femenino','Masculino','Otro'];
+  const genData = genKeys.map(k=>d.filter(r=>r.genero===k).length);
+  const genColors = ['#E87AB0','#4A9FD4','#7A9BB8'];
+  mkChart('chart-genero', {
+    type: 'doughnut',
+    data: { labels: genKeys, datasets:[{data:genData,backgroundColor:genColors,borderWidth:0}] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw} (${pctStr(c.raw,N)})`}}} }
+  });
+
+  // Edad
+  const edadKeys = ['18-24 años','25-34 años','35-44 años','45-54 años','+55 años'];
+  const edadData = edadKeys.map(k=>d.filter(r=>r.edad===k).length);
+  const edadColors = ['#00C2CB','#4A9FD4','#7A9BB8','#5A7A94','#3A5A74'];
+  mkChart('chart-edad', {
+    type: 'bar',
+    data: { labels: edadKeys.map(e=>e.replace(' años','')), datasets:[{data:edadData,backgroundColor:edadColors,borderRadius:4,borderSkipped:false}] },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} | ${pctStr(c.raw,N)}`}}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.04)'}}} }
+  });
+
+  // Instancia
+  const instKeys = [{{INSTANCIA_KEYS}}];
+  const instData = instKeys.map(k=>d.filter(r=>r.instancia===k).length);
+  const instColors = [{{INSTANCIA_COLORS}}];
+  mkChart('chart-instancia', {
+    type: 'bar',
+    data: { labels: instKeys, datasets:[{data:instData,backgroundColor:instColors,borderRadius:4,borderSkipped:false}] },
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} | ${pctStr(c.raw,N)}`}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.04)'}},y:{grid:{display:false}}} }
+  });
+}
+
+function renderPuntaje() {
+  const d = getFiltered();
+  const N = d.length;
+  const scores = d.filter(r=>r.puntaje).map(r=>r.puntaje);
+  const avgVal = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+  document.getElementById('score-avg').textContent = avgVal.toFixed(1);
+
+  const high = scores.filter(s=>s>=8).length;
+  const mid = scores.filter(s=>s>=6&&s<8).length;
+  const low = scores.filter(s=>s<6).length;
+  document.getElementById('pct-high').textContent = pctStr(high,scores.length);
+  document.getElementById('n-high').textContent = `N: ${high}`;
+  document.getElementById('pct-mid').textContent = pctStr(mid,scores.length);
+  document.getElementById('n-mid').textContent = `N: ${mid}`;
+  document.getElementById('pct-low').textContent = pctStr(low,scores.length);
+  document.getElementById('n-low').textContent = `N: ${low}`;
+
+  const top3pct = pct(scores.filter(s=>s>=7).length, scores.length);
+  document.getElementById('score-distrib').textContent = `${top3pct}% con puntaje 7 o más`;
+
+  const scoreDist = {};
+  for (let i=1;i<=10;i++) scoreDist[i]=0;
+  scores.forEach(s=>scoreDist[s]=(scoreDist[s]||0)+1);
+  const labels = ['1','2','3','4','5','6','7','8','9','10'];
+  const data = labels.map(s=>scoreDist[parseInt(s)]||0);
+  mkChart('chart-scores', {
+    type: 'bar',
+    data: { labels,
+      datasets:[{data,
+        backgroundColor: labels.map(s=>{const v=parseInt(s);return v>=8?'#3DAB6A':v>=6?'#FFD166':'#C24040';}),
+        borderRadius:6, borderSkipped:false}] },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>`N: ${c.raw} | ${pctStr(c.raw,scores.length)}`}},
+        datalabels: false },
+      scales:{x:{grid:{color:'rgba(255,255,255,.04)'}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{precision:0}}} }
+  });
+}
+
+function renderMomentos() {
+  const d = getFiltered();
+  const N = d.length;
+  const momentoCounts = {};
+  d.forEach(r=>{ momentoCounts[r.momento]=(momentoCounts[r.momento]||0)+1; });
+  const momentoPairs = MOMENTO_ORDER.map((k,i)=>({k,short:MOMENTO_SHORT[i],n:momentoCounts[k]||0,color:['#00C2CB','#4A9FD4','#3DAB6A','#FFD166','#F08030'][i]})).sort((a,b)=>b.n-a.n);
+  mkChart('chart-momentos', {
+    type: 'bar',
+    data: { labels: momentoPairs.map(p=>p.short),
+      datasets:[{data:momentoPairs.map(p=>p.n), backgroundColor:momentoPairs.map(p=>p.color), borderRadius:6, borderSkipped:false}] },
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} | ${pctStr(c.raw,N)}`}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.04)'}},y:{grid:{display:false},ticks:{font:{size:12}}}} }
+  });
+}
+
+function renderIntencion() {
+  const d = getFiltered();
+  const N = d.length;
+  const intentCounts = {};
+  INTENT_ORDER.forEach(k=>{ intentCounts[k]=d.filter(r=>r.intencion===k).length; });
+  const pos = (intentCounts[INTENT_ORDER[0]]||0)+(intentCounts[INTENT_ORDER[1]]||0);
+  const neu = intentCounts[INTENT_ORDER[2]]||0;
+  const neg = (intentCounts[INTENT_ORDER[3]]||0)+(intentCounts[INTENT_ORDER[4]]||0);
+
+  document.getElementById('int-pos-pct').textContent = pctStr(pos,N);
+  document.getElementById('int-pos-n').textContent = `${pos} respondentes`;
+  document.getElementById('int-neu-pct').textContent = pctStr(neu,N);
+  document.getElementById('int-neu-n').textContent = `${neu} respondentes`;
+  document.getElementById('int-neg-pct').textContent = pctStr(neg,N);
+  document.getElementById('int-neg-n').textContent = `${neg} respondentes`;
+
+  // stacked bar
+  const stacked = document.getElementById('intent-stacked');
+  stacked.innerHTML = '';
+  const colors2 = ['#3DAB6A','#7CCF9B','#FFD166','#F08030','#C24040'];
+  INTENT_ORDER.forEach((k,i)=>{
+    const n = intentCounts[k]||0;
+    const w = pct(n,N);
+    if (w===0) return;
+    const seg = document.createElement('div');
+    seg.className='intent-seg';
+    seg.style.width=w+'%';
+    seg.style.background=colors2[i];
+    seg.textContent = w>6?w+'%':'';
+    seg.title = `${k}: ${n} (${w}%)`;
+    stacked.appendChild(seg);
+  });
+
+  const intentData = INTENT_ORDER.map(k=>intentCounts[k]||0);
+  const intentLabels = ['Definitivamente sí','Probablemente sí','No sé','Probablemente no','Definitivamente no'];
+  mkChart('chart-intencion', {
+    type: 'bar',
+    data: { labels: intentLabels,
+      datasets:[{data:intentData, backgroundColor:INTENT_COLORS, borderRadius:6, borderSkipped:false}] },
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} | ${pctStr(c.raw,N)}`}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.04)'}},y:{grid:{display:false},ticks:{font:{size:12}}}} }
+  });
+}
+
+function renderInsights() {
+  const d = getFiltered();
+  const N = d.length;
+  const scores = d.filter(r=>r.puntaje).map(r=>r.puntaje);
+  const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
+  const high7 = scores.filter(s=>s>=7).length;
+  const posIntent = d.filter(r=>r.intencion===INTENT_ORDER[0]||r.intencion===INTENT_ORDER[1]).length;
+  const playaN = d.filter(r=>r.momento===MOMENTO_ORDER[0]).length;
+  const joven = d.filter(r=>r.edad==='18-24 años'||r.edad==='25-34 años').length;
+  const fem = d.filter(r=>r.genero==='Femenino').length;
+  const celN = RAW.filter(r=>r.instancia==='CEL').length;
+
+  // Set only existing elements. The .textContent assignments must target IDs that exist
+  // in the HTML above — never set ins{N}-desc here (eso pisa la descripción escrita en el template).
+  const setIf = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setIf('ins1-num', avgScore + '/9');
+  setIf('ins2-num', pctStr(posIntent,N));
+  setIf('ins3-num', pctStr(playaN,N));
+  setIf('ins4-num', pctStr(joven,N));
+  setIf('ins5-num', pctStr(fem,N));
+  setIf('ins6-num', celN);
+}
+
+// ---------- RENDER ALL ----------
+function renderAll() {
+  renderResumen();
+  renderAudiencia();
+  renderPuntaje();
+  renderMomentos();
+  renderIntencion();
+  renderInsights();
+}
+
+buildFilters();
+renderAll();
+</script>
+</body>
+</html>

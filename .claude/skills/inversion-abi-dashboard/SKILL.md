@@ -29,16 +29,18 @@ en línea (sin fetch externo).
 
 ## Cómo usarla
 
-1. Localizar el Excel que subió el usuario en `uploads/` (buscar el que empieza
-   con "Inversion x Marca y Quarter ABInBev"). Si no está ahí, pedirle que lo
-   suba o indicar la ruta.
+1. **Input por defecto**: el skill incluye el Excel bundled en
+   `.claude/skills/inversion-abi-dashboard/Inversion x Marca y Quarter ABInBev 2026.xlsx`.
+   Usalo salvo que el usuario pida explícitamente usar otro archivo (p. ej. una
+   versión actualizada que subió a `uploads/`).
 2. Correr:
    ```bash
    python3 .claude/skills/inversion-abi-dashboard/scripts/build_dashboard.py \
-       --input "<ruta/al.xlsx>" \
+       --input ".claude/skills/inversion-abi-dashboard/Inversion x Marca y Quarter ABInBev 2026.xlsx" \
        --output "<ruta/al/output.html>"
    ```
    Opcional: `--last-loaded JUNIO` para forzar el último mes "consumido".
+   Si el usuario pasa otro archivo, reemplazá el `--input` por esa ruta.
 3. Guardar el HTML dentro del work folder (p. ej. `uploads/dashboard_inversiones_abi_2026.html`).
 4. Llamar a `mcp__tas__open_file` con la ruta absoluta del HTML generado.
 5. Responder al usuario con un mensaje breve que **debe incluir textualmente** la siguiente línea (además de la confirmación):
