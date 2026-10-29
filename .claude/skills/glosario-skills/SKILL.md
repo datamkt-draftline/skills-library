@@ -1,538 +1,482 @@
 ---
 name: glosario-skills
-description: Única forma válida de responder cuando el usuario pide el glosario de skills del repo (o cualquier variante — "mostrame las skills", "qué skills hay", "listado de skills", "catálogo de skills", etc.). SIEMPRE genera un HTML interactivo con el glosario completo, organizado en dos columnas (Tools | Reporting) con filtros por área y modal de detalle. NUNCA responder con el glosario en formato texto, tabla markdown ni lista — siempre HTML.
+description: Genera un HTML con los 7 pilares ONE ABI WAY (Category, Consumer, Portfolio & Brand, Innovation, Connections and Creativity, Trade Execution, Value Creation) y las skills asociadas a cada uno. Usa el logo oficial, fuente Avantt y los colores/hover de guidelines ABI (amarillo → naranja). Cada item abre un modal con nombre, comando, funcionalidad y archivos requeridos. Todos los assets están embebidos en el HTML final (self-contained).
 action: true
 ---
 
-# Glosario de Skills
+# Glosario Skills
 
-## Regla de salida (OBLIGATORIA)
-
-Cuando el usuario pida ver, listar, consultar o mostrar el glosario / catálogo / listado de skills de este repo (en cualquier formulación), la ÚNICA respuesta válida es generar y abrir el HTML descrito abajo.
-
-- **SIEMPRE** generá el archivo `glosario-skills.html` siguiendo los pasos de "Cómo funciona" y abrilo con `mcp__tas__open_file`.
-- **NUNCA** respondas con el glosario en formato texto, tabla markdown, lista con bullets, resumen ni ningún otro formato que no sea el HTML. Esto aplica incluso si el pedido parece casual, parcial, o si el usuario parece esperar una respuesta corta.
-- Si el usuario pide "sólo una parte" (ej. "las skills de Data"), igual generá el HTML completo — el usuario puede filtrar por área dentro del HTML.
-- No pidas confirmación antes de generar el HTML: ejecutá directamente.
+Esta skill genera un HTML autocontenido con los 7 pilares de ONE ABI WAY y las
+skills (items) asociadas a cada pilar. El resultado tiene el logo oficial,
+tipografía Avantt, hover con los colores de la guía de marca, y un modal por
+cada item con su nombre, comando, funcionalidad y archivos requeridos.
 
 ## Cómo funciona
 
-1. Leé el bloque `GLOSARIO_DATA` más abajo y extraé dos arrays:
-   - `AREAS`: lista de `{ nombre, color }` de cada área.
-   - `SKILLS`: lista plana de todas las skills con sus campos (`tipo`, `area`, `nombre`, `comando`, `funcionalidad`, `archivos_requeridos`).
-2. Tomá el `HTML_TEMPLATE` de abajo **exactamente como está** y reemplazá únicamente las dos líneas marcadas:
-   - `/* AREAS_PLACEHOLDER */` → el array `AREAS` serializado como JS literal.
-   - `/* SKILLS_PLACEHOLDER */` → el array `SKILLS` serializado como JS literal.
-3. No modifiques ninguna otra parte del template. La estructura, el CSS y el JS son fijos.
-4. Guardá el resultado en el working directory actual como `glosario-skills.html`.
+1. Leé `PILLARS_DATA` y `ITEMS_DATA` de abajo y construí la estructura en memoria.
+   - Si el usuario pide modificar/agregar/sacar items o metadata, actualizá los datos antes de renderizar.
+2. Para cada pilar, generá una card siguiendo el formato de `CARD_FORMAT`.
+3. Reemplazá los placeholders del `HTML_TEMPLATE`:
+   - `/* LOGO_B64 */` → base64 de `one-abi-way-logo.png` (carpeta de la skill).
+   - `/* AV_LIGHT */`, `/* AV_REG */`, `/* AV_SB */`, `/* AV_BOLD */` → base64 de las 4 fuentes en `fonts/`.
+   - `<!-- PILLARS_CARDS -->` → HTML de las 7 cards.
+4. Guardá el resultado como `one-abi-skills.html` en el working directory.
 5. Llamá a `mcp__tas__open_file` con el path absoluto del archivo generado.
 
-## GLOSARIO_DATA
+Usá el script Python de abajo para hacer el base64 y la sustitución.
+
+---
+
+## PILLARS_DATA
 
 ```json
 {
-  "areas": [
+  "pillars": [
     {
-      "nombre": "Marketing",
-      "color": "#ff6b7a",
-      "skills": [
-        { "tipo": "tool", "nombre": "Presentaciones PPT-CMQ", "comando": "/presentacion-bu-las-cmq", "funcionalidad": "Genera presentaciones PowerPoint (.pptx) editables con la identidad visual de BU LAS + Cervecería y Maltería Quilmes a partir de un brief, información o archivos aportados por el usuario.", "archivos_requeridos": "Brief en texto, Word, PDF o imágenes de referencia. Opcional: logos, datos de la marca." },
-        { "tipo": "tool", "nombre": "Generación de contenido Cont-Gen", "comando": "/cont-gen", "funcionalidad": "Genera piezas de contenido (copy, posteos, mails, scripts) alineadas a la voz de marca y al brief entregado.", "archivos_requeridos": "Brief del contenido a generar (texto o doc). Opcional: guía de tono de marca, ejemplos de referencia." },
-        { "tipo": "reporting", "nombre": "Análisis/tracking de presupuesto Budget-Tracker", "comando": "/budget-tracker", "funcionalidad": "Analiza y hace seguimiento del presupuesto de marketing: ejecución vs. plan, desvíos por marca/mes/trimestre, alertas.", "archivos_requeridos": "Excel con el presupuesto planificado y ejecutado (columnas: marca, categoría, mes, planificado, ejecutado)." },
-        { "tipo": "tool", "nombre": "Genome", "comando": "/genome", "funcionalidad": "Genera el genoma de una marca o campaña: atributos clave, posicionamiento, audiencias objetivo y pilares de comunicación.", "archivos_requeridos": "Información de la marca/campaña (brief, estudios previos, resultados). Opcional: data de competidores." }
-      ]
+      "num": "01",
+      "name": "Category",
+      "desc": "Define the key opportunities to Lead and Grow the category",
+      "items": []
     },
     {
-      "nombre": "Data",
-      "color": "#7aa2ff",
-      "skills": [
-        { "tipo": "reporting", "nombre": "Benchmarks Bench-CMQ", "comando": "/bench-cmq", "funcionalidad": "Genera benchmarks de categoría/competidores a partir de datos internos y fuentes externas, con comparativas visuales.", "archivos_requeridos": "Dataset de la categoría (xlsx/csv) con métricas de marca y competidores." },
-        { "tipo": "reporting", "nombre": "Social Research Leila", "comando": "/leila", "funcionalidad": "Realiza research social (escucha activa, análisis de conversación, sentiment, trending topics) sobre un tema o marca.", "archivos_requeridos": "Opcional: dataset de menciones/posteos. Si no, parte de la consulta en texto libre." },
-        { "tipo": "reporting", "nombre": "Análisis de performance de campañas Perfo-CMQ", "comando": "/perfo-cmq", "funcionalidad": "Analiza la performance de campañas digitales: reach, impresiones, CTR, CPM, CPC, conversiones, ROAS.", "archivos_requeridos": "Export de la plataforma (Meta, Google, TikTok, DV360, etc.) en xlsx/csv." },
-        { "tipo": "reporting", "nombre": "Automatización SOE SOE-CMQ", "comando": "/soe-cmq", "funcionalidad": "Automatiza el cálculo de Share of Expenditure (SOE) por marca y categoría, con comparativas temporales.", "archivos_requeridos": "Reporte de inversión por marca/competidor (xlsx) y período a analizar." },
-        { "tipo": "reporting", "nombre": "Mails Tracking Mails-Track", "comando": "/mails-track", "funcionalidad": "Hace tracking de performance de campañas de mail marketing: open rate, CTR, bounce, unsubscribes, por segmento.", "archivos_requeridos": "Export del ESP (ej. Salesforce Marketing Cloud, Mailchimp) en xlsx/csv." },
-        { "tipo": "reporting", "nombre": "Automatización Encuestas y resultados", "comando": "/analyze-survey", "funcionalidad": "Analiza resultados de encuestas siguiendo una metodología por pasos y genera dashboard HTML + xlsx procesado con el detalle por pregunta.", "archivos_requeridos": "Archivo xlsx con los resultados de la encuesta (respuestas en bruto)." },
-        { "tipo": "tool", "nombre": "Diccionario Estudios SL & Agile", "comando": "/diccionario-estudios", "funcionalidad": "Mantiene y consulta un diccionario de estudios realizados (Shopper Loyalty, Agile Research) con metodología, muestra, hallazgos clave y link al reporte original.", "archivos_requeridos": "Opcional: nuevo estudio para incorporar al diccionario (PDF o doc)." }
-      ]
+      "num": "02",
+      "name": "Consumer",
+      "desc": "Define and deeply understand our consumer target",
+      "items": ["Analyze Survey"]
     },
     {
-      "nombre": "Medios",
-      "color": "#ffb86b",
-      "skills": [
-        { "tipo": "reporting", "nombre": "Análisis de inversión 1YP 2026-2027 1YP-Medios", "comando": "/1yp-medios", "funcionalidad": "Analiza la inversión 1YP (One Year Plan) 2026-2027 por marca, canal y trimestre con comparativas vs. año anterior.", "archivos_requeridos": "Excel con el plan de inversión 1YP (marca, canal, Q, monto)." },
-        { "tipo": "reporting", "nombre": "Performance de influencers Influs-CMQ", "comando": "/influencer-audience", "funcionalidad": "Genera presentación PPTX editable con audience intelligence de uno o más influencers (biografía, partnerships, demographics, follower history) a partir de datos de CreatorIQ.", "archivos_requeridos": "Export de CreatorIQ con los influencers a analizar." },
-        { "tipo": "reporting", "nombre": "TRPs TRPs-CMQ", "comando": "/trps-cmq", "funcionalidad": "Analiza TRPs (Target Rating Points) de campañas de TV: cobertura, frecuencia, GRPs, por canal/franja/target.", "archivos_requeridos": "Reporte de Kantar IBOPE / central de medios con TRPs por campaña." },
-        { "tipo": "reporting", "nombre": "Content Tracker Cont-track", "comando": "/cont-track", "funcionalidad": "Hace tracking del contenido publicado por marca/plataforma: volumen, formatos, performance y gaps vs. plan.", "archivos_requeridos": "Export de plataformas (Meta Business, TikTok, YouTube Studio) o Google Sheet de planificación." }
-      ]
+      "num": "03",
+      "name": "Portfolio & Brand",
+      "desc": "Prioritize brands and platforms to drive growth at scale",
+      "items": ["PPT"]
     },
     {
-      "nombre": "draftLine",
-      "color": "#5eead4",
-      "skills": [
-        { "tipo": "tool", "nombre": "Armado de Briefs Briefs-dl", "comando": "/briefs-dl", "funcionalidad": "Genera briefs creativos estandarizados para draftLine a partir de la info del proyecto, con todos los campos requeridos (objetivos, target, mensajes, entregables, timings).", "archivos_requeridos": "Info del proyecto (texto, Word, PDF). Opcional: ejemplos de briefs anteriores." },
-        { "tipo": "reporting", "nombre": "Agendas / visibilidad de proyectos Agenda-CMQ", "comando": "/agenda-cmq", "funcionalidad": "Genera una vista consolidada de todos los proyectos activos de draftLine con responsables, estado, próximos hitos.", "archivos_requeridos": "Export del sistema de gestión de proyectos (Monday, Asana, Google Sheet)." },
-        { "tipo": "tool", "nombre": "Calendario digital Calendar-dl", "comando": "/calendar-dl", "funcionalidad": "Genera un calendario digital de contenido (RRSS, mails, web) con fechas de publicación, responsables y assets.", "archivos_requeridos": "Planificación de contenido en xlsx/csv o Google Sheet." },
-        { "tipo": "tool", "nombre": "Cotización y seguimiento de proyectos Gantt-CMQ", "comando": "/gantt", "funcionalidad": "Genera un Gantt interactivo (HTML) a partir de un Excel para cotizar y hacer seguimiento de proyectos de draftLine.", "archivos_requeridos": "Excel con tareas, responsables, fechas inicio/fin y dependencias." }
-      ]
+      "num": "04",
+      "name": "Innovation",
+      "desc": "Optimize our portfolio through sustainable innovation",
+      "items": ["Remy"]
+    },
+    {
+      "num": "05",
+      "name": "Connections and Creativity",
+      "desc": "Connect with our consumers effectively to drive growth",
+      "items": ["Influencer Audience", "Media Investment", "Content Tracker"]
+    },
+    {
+      "num": "06",
+      "name": "Trade Execution",
+      "desc": "Build brands and drive growth at the point-of-purchase",
+      "items": []
+    },
+    {
+      "num": "07",
+      "name": "Value Creation",
+      "desc": "Ensure that we are actually creating value",
+      "items": ["Gantt", "Glosario Skills"]
     }
   ]
 }
 ```
 
-## HTML_TEMPLATE
+---
 
-Reemplazá `/* AREAS_PLACEHOLDER */` y `/* SKILLS_PLACEHOLDER */` con los arrays derivados de GLOSARIO_DATA y guardá el resultado como `glosario-skills.html`.
+## ITEMS_DATA
+
+```json
+{
+  "Analyze Survey": {
+    "cmd": "/analyze-survey",
+    "func": "Analiza resultados de encuestas siguiendo una metodología por pasos y genera dashboard HTML + xlsx procesado con el detalle por pregunta.",
+    "files": "Archivo xlsx con los resultados de la encuesta (respuestas en bruto)."
+  },
+  "PPT": {
+    "cmd": "/presentacion-bu-las-cmq",
+    "func": "Genera presentaciones PowerPoint (.pptx) editables con la identidad visual de BU LAS + Cervecería y Maltería Quilmes a partir de un brief, información o archivos aportados por el usuario.",
+    "files": "Brief en texto, Word, PDF o imágenes de referencia. Opcional: logos, datos de la marca."
+  },
+  "Remy": {
+    "cmd": "/remy",
+    "func": "Genera recomendaciones de innovación de producto basadas en tendencias de consumo, análisis de portfolio y oportunidades de mercado detectadas en data interna.",
+    "files": "Opcional: brief de innovación, datos de ventas o reporte de tendencias."
+  },
+  "Influencer Audience": {
+    "cmd": "/influencer-audience",
+    "func": "Genera un PPTX con el reporte de audiencia de los influencers según datos de CreatorIQ.",
+    "files": "Datos de influencers exportados de CreatorIQ (xlsx o JSON)."
+  },
+  "Media Investment": {
+    "cmd": "/inversion-abi-dashboard",
+    "func": "Genera un HTML interactivo y link a dashboard (Netlify) de inversiones en medios por marca, sistema y período.",
+    "files": "Archivo xlsx con el plan de inversiones (formato ABI estándar)."
+  },
+  "Content Tracker": {
+    "cmd": "/content-tracker",
+    "func": "Trackea y organiza el contenido publicado por marca y canal, mostrando estado, fechas y métricas clave en un dashboard HTML.",
+    "files": "Opcional: xlsx con el calendario de contenidos o exportación de la plataforma de social media."
+  },
+  "Gantt": {
+    "cmd": "/gantt",
+    "func": "Genera un HTML con el gantt del excel adjunto. También se puede pedir el template para armar el excel.",
+    "files": "Archivo xlsx con el plan de trabajo (formato Gantt ABI). Opcional: pedir template."
+  },
+  "Glosario Skills": {
+    "cmd": "/glosario-skills",
+    "func": "Genera un HTML interactivo con todas las skills disponibles, organizadas por área, con filtros y detalle de cada skill en modal.",
+    "files": "No requiere archivos."
+  }
+}
+```
+
+---
+
+## ITEMS_TYPE
+
+Clasificación de items por tipo (para asignar clases CSS de hover):
+
+```json
+{
+  "tools":     ["Gantt", "Glosario Skills", "PPT", "Remy"],
+  "reporting": ["Analyze Survey", "Influencer Audience", "Media Investment", "Content Tracker"]
+}
+```
+
+---
+
+## CARD_FORMAT
 
 ```html
-<!DOCTYPE html>
-<html lang="es">
+<article class="pillar">
+  <div class="pillar-top">
+    <div class="pillar-num">{num}.</div>
+    <h2 class="pillar-name">{name}</h2>
+    <p class="pillar-desc">{desc}</p>
+  </div>
+  <div class="divider"></div>
+  <div class="items">
+    <!-- por cada item: asigná class "item item-tool", "item item-report" o "item" según ITEMS_TYPE -->
+    <button class="item {type_class}" type="button"
+      onclick="openModal('{name}','{cmd}','{func}','{files}')">{name}</button>
+  </div>
+</article>
+```
+
+Escapá las comillas simples en los atributos `onclick` con `\'`. Si `items` está vacío, dejá `<div class="items"></div>`.
+
+---
+
+## HTML_TEMPLATE
+
+```html
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Glosario de Skills</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONE ABI WAY · Pillars</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @font-face {
+    font-family: 'Avantt'; font-weight: 300; font-style: normal; font-display: swap;
+    src: url(data:font/ttf;base64,/* AV_LIGHT */) format('truetype');
+  }
+  @font-face {
+    font-family: 'Avantt'; font-weight: 400; font-style: normal; font-display: swap;
+    src: url(data:font/ttf;base64,/* AV_REG */) format('truetype');
+  }
+  @font-face {
+    font-family: 'Avantt'; font-weight: 600; font-style: normal; font-display: swap;
+    src: url(data:font/ttf;base64,/* AV_SB */) format('truetype');
+  }
+  @font-face {
+    font-family: 'Avantt'; font-weight: 700; font-style: normal; font-display: swap;
+    src: url(data:font/ttf;base64,/* AV_BOLD */) format('truetype');
+  }
   :root {
-    --bg: #0a0a0f;
-    --bg-elev: #141420;
-    --bg-elev-2: #1c1c2b;
-    --border: #26263a;
-    --border-strong: #363650;
-    --text: #e8e8f0;
-    --text-dim: #9797b0;
-    --text-mute: #6b6b85;
+    --yellow: #FFD100;
+    --ink: #1a1a1a;
+    --card: #ffffff;
+    --card-border: #ececec;
+    --bg: #faf7f1;
   }
-  html, body { height: 100%; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
+    font-family: 'Avantt', 'Inter', 'Segoe UI', Arial, sans-serif;
+    color: var(--ink);
     min-height: 100vh;
-    padding: 56px 32px 64px;
-    position: relative;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
+    -webkit-font-smoothing: antialiased;
     background:
-      radial-gradient(ellipse 800px 400px at 15% 0%, rgba(255, 107, 122, 0.08), transparent 60%),
-      radial-gradient(ellipse 600px 400px at 85% 20%, rgba(94, 234, 212, 0.08), transparent 60%),
-      radial-gradient(ellipse 700px 400px at 50% 90%, rgba(255, 184, 107, 0.06), transparent 60%);
-    pointer-events: none;
-    z-index: 0;
+      radial-gradient(ellipse 55% 42% at 50% 10%, rgba(255,209,0,0.35) 0%, rgba(255,209,0,0.08) 55%, rgba(255,209,0,0) 80%),
+      var(--bg);
   }
-  .container { max-width: 1320px; margin: 0 auto; position: relative; z-index: 1; }
-  header {
-    margin-bottom: 48px;
-    text-align: center;
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 40px 28px 64px; }
+  header.title { text-align: center; margin-bottom: 44px; }
+  header.title img { width: min(520px, 80%); height: auto; display: block; margin: 0 auto; }
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 14px;
+    align-items: stretch;
+  }
+  .pillar {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 22px 18px 22px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    height: 100%;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease;
   }
-  h1 {
-    font-size: 48px;
-    font-weight: 700;
-    letter-spacing: -1.4px;
-    margin-bottom: 14px;
-    background: linear-gradient(135deg, #ffffff 0%, #a0a0c0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .pillar:hover {
+    background: linear-gradient(180deg, #FFE88A 0%, #FFDA7A 55%, #FFC97A 100%);
+    border-color: #F3C054;
+    box-shadow: 0 6px 20px rgba(255,180,60,.28);
+    transform: translateY(-2px);
   }
-  .subtitle {
-    color: var(--text-dim);
-    font-size: 15px;
-    margin-bottom: 32px;
-    max-width: 580px;
-  }
-  .search-wrap {
-    position: relative;
+  .pillar-top { display: flex; flex-direction: column; gap: 10px; }
+  .pillar-num { font-size: 22px; font-weight: 700; color: #a3a3a3; letter-spacing: -0.02em; line-height: 1; margin-bottom: 2px; }
+  .pillar-name { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); line-height: 1.15; min-height: 46px; }
+  .pillar-desc { margin: 0; color: #4a4a4a; font-size: 13px; line-height: 1.5; font-weight: 400; min-height: 78px; }
+  .divider { height: 1px; background: rgba(0,0,0,.1); margin: 4px -4px 2px; }
+  .pillar:hover .divider { background: rgba(0,0,0,.18); }
+  .items { display: flex; flex-direction: column; gap: 8px; margin-top: 0; }
+  .item {
     width: 100%;
-    max-width: 520px;
-  }
-  .search-icon {
-    position: absolute;
-    left: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-mute);
-    pointer-events: none;
-  }
-  .search-box {
-    width: 100%;
-    padding: 14px 18px 14px 48px;
-    font-size: 14px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--bg-elev);
-    color: var(--text);
-    outline: none;
-    transition: all 0.2s;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    color: var(--ink);
     font-family: inherit;
-  }
-  .search-box::placeholder { color: var(--text-mute); }
-  .search-box:focus {
-    border-color: var(--border-strong);
-    background: var(--bg-elev-2);
-    box-shadow: 0 0 0 4px rgba(255,255,255,0.03);
-  }
-  .filter-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
-    justify-content: center;
-  }
-  .pill {
-    background: var(--bg-elev);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
     font-size: 12.5px;
-    font-weight: 500;
-    padding: 7px 16px;
+    font-weight: 600;
+    padding: 9px 14px;
     border-radius: 999px;
     cursor: pointer;
-    transition: all 0.15s;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .pill:hover { background: var(--bg-elev-2); color: var(--text); border-color: var(--border-strong); }
-  .pill .pill-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--pill-color); box-shadow: 0 0 8px var(--pill-color); }
-  .pill.active { background: var(--text); color: #0a0a0f; border-color: var(--text); font-weight: 600; }
-  .pill.active .pill-dot { box-shadow: none; }
-  .sections {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    align-items: start;
-    position: relative;
+  .item:hover { background: #FFF0B8; border-color: #B88A2A; color: var(--ink); transform: translateY(-1px); }
+  .item-tool:hover   { background: #FFF4D6; border-color: #D4A843; color: var(--ink); transform: translateY(-1px); }
+  .item-report:hover { background: #EEF1F7; border-color: #8099C0; color: var(--ink); transform: translateY(-1px); }
+
+  .subtitle {
+    text-align: center;
+    margin: -32px 0 12px;
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #888;
   }
-  .sections::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 3px;
-    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.12) 15%, rgba(255,255,255,0.12) 85%, transparent 100%);
-    transform: translateX(-50%);
-    pointer-events: none;
-    z-index: 1;
-  }
-  .section { position: relative; min-width: 0; }
-  .section-header {
+  .legend {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 22px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border);
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 36px;
   }
-  .section-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--bg-elev-2); border: 1px solid var(--border); color: var(--text);
+  .legend-item {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid;
   }
-  .section-title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
-  .section-sub { color: var(--text-mute); font-size: 12.5px; margin-top: 2px; }
-  .section-count {
-    margin-left: auto; font-size: 12px; font-weight: 600; color: var(--text-mute);
-    background: var(--bg-elev); padding: 4px 11px; border-radius: 999px; border: 1px solid var(--border);
+  .legend-tool   { background: #FFF4D6; border-color: #D4A843; color: #7A5C1A; }
+  .legend-report { background: #EEF1F7; border-color: #8099C0; color: #3A537A; }
+
+  /* Modal */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,.45);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
   }
-  .skills-grid { display: flex; flex-direction: column; gap: 12px; }
-  .skill-item {
-    padding: 16px 18px; border-radius: 12px;
-    background: var(--bg-elev); border: 1px solid var(--border);
-    cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;
-  }
-  .skill-item::before {
-    content: ""; position: absolute;
-    left: 0; top: 50%; transform: translateY(-50%);
-    width: 3px; height: 0;
-    background: var(--area-color); border-radius: 0 2px 2px 0; transition: height 0.22s ease;
-  }
-  .skill-item:hover {
-    background: var(--bg-elev-2); border-color: var(--border-strong);
-    transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  }
-  .skill-item:hover::before { height: 65%; }
-  .skill-name { font-weight: 500; font-size: 14.5px; color: var(--text); margin-bottom: 10px; letter-spacing: -0.1px; line-height: 1.35; }
-  .skill-cmd {
-    font-family: "SF Mono", "JetBrains Mono", Monaco, "Courier New", monospace;
-    font-size: 13px; color: var(--area-color); opacity: 0.9;
-    background: rgba(255,255,255,0.03); padding: 3px 9px;
-    border-radius: 6px; border: 1px solid var(--border);
-    cursor: pointer; transition: all 0.15s; display: inline-block;
-  }
-  .skill-cmd:hover { background: rgba(255,255,255,0.08); border-color: var(--area-color); opacity: 1; }
-  .skill-cmd:active { transform: scale(0.96); }
-  .skill-cmd.copied { background: var(--area-color); color: #0a0a0f; border-color: var(--area-color); opacity: 1; }
-  .section-empty {
-    padding: 32px 20px; text-align: center; color: var(--text-mute); font-size: 13px;
-    background: var(--bg-elev); border: 1px dashed var(--border); border-radius: 12px;
-  }
-  .no-results {
-    grid-column: 1/-1; text-align: center; color: var(--text-mute);
-    padding: 64px 16px; font-size: 14px;
-    background: var(--bg-elev); border: 1px dashed var(--border); border-radius: 12px;
-  }
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(5,5,10,0.75);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    display: none; align-items: center; justify-content: center;
-    padding: 24px; z-index: 100; animation: fadeIn 0.2s ease;
-  }
-  .modal-overlay.active { display: flex; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-backdrop.open { display: flex; }
   .modal {
-    background: linear-gradient(180deg, #1a1a2a 0%, #141420 100%);
-    border-radius: 18px; max-width: 620px; width: 100%; max-height: 85vh; overflow-y: auto;
-    border: 1px solid var(--border-strong); position: relative;
-    animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px 32px 28px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 24px 64px rgba(0,0,0,.18);
+    position: relative;
+    animation: modalIn .18s ease;
   }
-  .modal::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: var(--modal-color, #666); box-shadow: 0 0 24px var(--modal-color, #666);
-    border-radius: 18px 18px 0 0;
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(12px) scale(.97); }
+    to   { opacity: 1; transform: none; }
   }
-  @keyframes slideUp {
-    from { transform: translateY(20px) scale(0.98); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
-  }
-  .modal-header {
-    padding: 28px 32px 20px; border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
-  }
-  .modal-tags { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  .modal-tag {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px;
-    padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-elev-2);
-  }
-  .modal-tag.area { color: var(--modal-color); }
-  .modal-tag.area::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--modal-color); box-shadow: 0 0 6px var(--modal-color); }
-  .modal-tag.tipo { color: var(--text-dim); }
-  .modal-title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .modal-title { font-size: 22px; font-weight: 600; color: var(--text); letter-spacing: -0.4px; line-height: 1.3; }
-  .modal-cmd {
-    font-family: "SF Mono", "JetBrains Mono", Monaco, "Courier New", monospace;
-    background: var(--bg-elev-2); padding: 6px 12px; border-radius: 7px;
-    color: var(--modal-color); font-weight: 500; font-size: 14px; border: 1px solid var(--border);
-    cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px;
-  }
-  .modal-cmd:hover { border-color: var(--modal-color); background: #22223a; }
-  .modal-cmd:active { transform: scale(0.97); }
-  .modal-cmd.copied { background: var(--modal-color); color: #0a0a0f; border-color: var(--modal-color); }
-  .modal-cmd .copy-icon { opacity: 0.5; transition: opacity 0.15s; }
-  .modal-cmd:hover .copy-icon { opacity: 1; }
-  .modal-cmd.copied .copy-icon { opacity: 1; }
   .modal-close {
-    background: var(--bg-elev-2); border: 1px solid var(--border);
-    width: 34px; height: 34px; border-radius: 10px; cursor: pointer;
-    font-size: 18px; color: var(--text-dim); flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+    position: absolute; top: 16px; right: 18px;
+    background: none; border: none; cursor: pointer;
+    font-size: 22px; color: #999; line-height: 1; padding: 4px 6px;
+    border-radius: 6px; transition: color .12s, background .12s;
   }
-  .modal-close:hover { background: #2a2a40; color: var(--text); border-color: var(--border-strong); }
-  .modal-body { padding: 24px 32px 32px; }
-  .field { margin-bottom: 22px; }
-  .field:last-child { margin-bottom: 0; }
-  .field-label { font-size: 10.5px; font-weight: 600; color: var(--text-mute); text-transform: uppercase; letter-spacing: 1.4px; margin-bottom: 8px; }
-  .field-value { font-size: 14px; color: var(--text); line-height: 1.65; }
-  .field-value.empty { color: var(--text-mute); font-style: italic; }
-  .toast {
-    position: fixed; bottom: 32px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--bg-elev-2); color: var(--text); border: 1px solid var(--border-strong);
-    padding: 12px 20px; border-radius: 10px; font-size: 13.5px; font-weight: 500;
-    display: flex; align-items: center; gap: 10px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5); opacity: 0; pointer-events: none;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); z-index: 200;
+  .modal-close:hover { color: var(--ink); background: #f0f0f0; }
+  .modal-title { font-size: 20px; font-weight: 700; margin: 0 0 6px; color: var(--ink); }
+  .modal-cmd {
+    display: inline-block;
+    background: #1a1a1a; color: #FFD100;
+    font-family: 'Avantt', monospace;
+    font-size: 13px; font-weight: 600;
+    padding: 5px 14px; border-radius: 999px;
+    margin-bottom: 20px; letter-spacing: .02em;
   }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .toast .toast-icon {
-    width: 18px; height: 18px; border-radius: 50%; background: #5eead4; color: #0a0a0f;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  .modal-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #a3a3a3; margin: 0 0 5px; }
+  .modal-section-body { font-size: 13.5px; font-weight: 400; color: #333; line-height: 1.6; margin: 0 0 18px; }
+  .modal-section-body:last-child { margin-bottom: 0; }
+
+  @media (max-width: 1200px) { .pillars-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 820px)  { .pillars-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px)  {
+    .wrap { padding: 28px 18px 48px; }
+    .pillars-grid { grid-template-columns: 1fr; gap: 12px; }
+    .pillar-name, .pillar-desc { min-height: auto; }
+    .modal { padding: 24px 20px 20px; }
   }
-  .toast code {
-    font-family: "SF Mono", "JetBrains Mono", Monaco, "Courier New", monospace;
-    font-size: 12.5px; color: var(--text-dim); background: var(--bg); padding: 1px 6px; border-radius: 4px;
-  }
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid var(--bg); }
-  ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
-  @media (max-width: 900px) { .sections { grid-template-columns: 1fr; gap: 40px; } .sections::before { display: none; } }
-  @media (max-width: 640px) { body { padding: 36px 18px 48px; } h1 { font-size: 32px; } .modal-header, .modal-body { padding-left: 22px; padding-right: 22px; } }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>Glosario de Skills</h1>
-    <p class="subtitle">Explorá las skills disponibles. Hacé click en cualquiera para ver su detalle completo.</p>
-    <div class="search-wrap">
-      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" class="search-box" id="search" placeholder="Buscar por nombre, comando o funcionalidad...">
-    </div>
-    <div class="filter-pills" id="filterPills"></div>
-  </header>
-  <div class="sections" id="sections"></div>
-</div>
-<div class="modal-overlay" id="modal">
-  <div class="modal" id="modalContent">
-    <div class="modal-header">
-      <div>
-        <div class="modal-tags">
-          <span class="modal-tag area" id="mArea"></span>
-          <span class="modal-tag tipo" id="mTipo"></span>
-        </div>
-        <div class="modal-title-row">
-          <div class="modal-title" id="mTitle"></div>
-          <span class="modal-cmd" id="mCmd" title="Click para copiar">
-            <span id="mCmdText"></span>
-            <svg class="copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          </span>
-        </div>
-      </div>
-      <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="field"><div class="field-label">Funcionalidad</div><div class="field-value" id="mFunc"></div></div>
-      <div class="field"><div class="field-label">Archivos requeridos</div><div class="field-value" id="mFiles"></div></div>
-    </div>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">&times;</button>
+    <h2 class="modal-title" id="mTitle"></h2>
+    <span class="modal-cmd" id="mCmd"></span>
+    <p class="modal-section-label">Funcionalidad</p>
+    <p class="modal-section-body" id="mFunc"></p>
+    <p class="modal-section-label">Archivos requeridos</p>
+    <p class="modal-section-body" id="mFiles"></p>
   </div>
 </div>
-<div class="toast" id="toast">
-  <span class="toast-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-  <span>Comando copiado: <code id="toastCmd"></code></span>
+
+<div class="wrap">
+  <header class="title">
+    <img src="data:image/png;base64,/* LOGO_B64 */" alt="ONE ABI WAY">
+  </header>
+  <p class="subtitle">Glosario de skills</p>
+  <div class="legend">
+    <span class="legend-item legend-tool">Tool</span>
+    <span class="legend-item legend-report">Reporting</span>
+  </div>
+  <section class="pillars-grid">
+    <!-- PILLARS_CARDS -->
+  </section>
 </div>
+
 <script>
-const AREAS = /* AREAS_PLACEHOLDER */;
-const SKILLS = /* SKILLS_PLACEHOLDER */;
-
-const SECTIONS = [
-  { key:"tool", title:"Tools", subtitle:"Skills que generan assets, documentos o entregables", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>' },
-  { key:"reporting", title:"Reporting", subtitle:"Skills que analizan datos y generan reportes/dashboards", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' }
-];
-
-const esc = s => (s == null ? "" : String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])));
-const areaColor = name => (AREAS.find(a => a.nombre === name) || {}).color || "#999";
-let activeArea = null;
-
-function renderPills() {
-  const container = document.getElementById('filterPills');
-  const pills = [`<button class="pill ${activeArea == null ? 'active' : ''}" data-area="">Todos</button>`]
-    .concat(AREAS.map(a => `<button class="pill ${activeArea === a.nombre ? 'active' : ''}" style="--pill-color:${a.color}" data-area="${esc(a.nombre)}"><span class="pill-dot"></span>${esc(a.nombre)}</button>`));
-  container.innerHTML = pills.join('');
-  container.querySelectorAll('.pill').forEach(el => {
-    el.addEventListener('click', () => {
-      const name = el.getAttribute('data-area') || null;
-      activeArea = (name && activeArea === name) ? null : name;
-      update();
-    });
-  });
-}
-
-function render(query) {
-  const container = document.getElementById('sections');
-  const q = (query || '').trim().toLowerCase();
-  const filtered = SKILLS.filter(s => {
-    if (activeArea && s.area !== activeArea) return false;
-    if (q && !(s.nombre.toLowerCase().includes(q) || s.comando.toLowerCase().includes(q) || (s.funcionalidad || '').toLowerCase().includes(q))) return false;
-    return true;
-  });
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="no-results">Sin resultados para esta búsqueda.</div>';
-    return;
+  function openModal(name, cmd, func, files) {
+    document.getElementById('mTitle').textContent = name;
+    document.getElementById('mCmd').textContent   = cmd;
+    document.getElementById('mFunc').textContent  = func;
+    document.getElementById('mFiles').textContent = files;
+    document.getElementById('modalBackdrop').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
-  container.innerHTML = SECTIONS.map(sec => {
-    const items = filtered.filter(s => s.tipo === sec.key);
-    return `<section class="section">
-      <div class="section-header">
-        <div class="section-icon">${sec.icon}</div>
-        <div><div class="section-title">${esc(sec.title)}</div><div class="section-sub">${esc(sec.subtitle)}</div></div>
-        <span class="section-count">${items.length}</span>
-      </div>
-      ${items.length === 0
-        ? '<div class="section-empty">Sin resultados en esta sección.</div>'
-        : `<div class="skills-grid">${items.map(s => {
-            const color = areaColor(s.area);
-            return `<div class="skill-item" style="--area-color:${color}" data-skill='${JSON.stringify(s).replace(/'/g,"&#39;")}'>
-              <div class="skill-name">${esc(s.nombre)}</div>
-              <span class="skill-cmd" data-cmd="${esc(s.comando)}" title="Click para copiar">${esc(s.comando)}</span>
-            </div>`;
-          }).join('')}</div>`}
-    </section>`;
-  }).join('');
-  document.querySelectorAll('.skill-item').forEach(el => {
-    el.addEventListener('click', () => openModal(JSON.parse(el.getAttribute('data-skill').replace(/&#39;/g,"'"))));
-  });
-  document.querySelectorAll('.skill-cmd').forEach(el => {
-    el.addEventListener('click', e => { e.stopPropagation(); copyCommand(el.getAttribute('data-cmd'), el); });
-  });
-}
-
-function update() { renderPills(); render(document.getElementById('search').value); }
-
-function openModal(s) {
-  const color = areaColor(s.area);
-  document.getElementById('modalContent').style.setProperty('--modal-color', color);
-  const areaEl = document.getElementById('mArea');
-  areaEl.textContent = s.area; areaEl.style.setProperty('--modal-color', color); areaEl.style.color = color;
-  document.getElementById('mTipo').textContent = s.tipo === 'tool' ? 'Tool' : 'Reporting';
-  document.getElementById('mTitle').textContent = s.nombre;
-  document.getElementById('mCmdText').textContent = s.comando || '—';
-  const cmdEl = document.getElementById('mCmd');
-  cmdEl.classList.remove('copied'); cmdEl.style.color = color;
-  cmdEl.onclick = e => { e.stopPropagation(); copyCommand(s.comando, cmdEl); };
-  document.getElementById('mFunc').textContent = s.funcionalidad || '—';
-  const files = document.getElementById('mFiles');
-  files.textContent = s.archivos_requeridos || 'No requiere archivos';
-  files.className = 'field-value' + (s.archivos_requeridos ? '' : ' empty');
-  document.getElementById('modal').classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal() { document.getElementById('modal').classList.remove('active'); document.body.style.overflow = ''; }
-
-let toastTimer = null;
-function showToast(cmd) {
-  const toast = document.getElementById('toast');
-  document.getElementById('toastCmd').textContent = cmd;
-  toast.classList.add('show'); clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
-}
-
-function copyCommand(cmd, el) {
-  if (!cmd) return;
-  const done = () => { el.classList.add('copied'); showToast(cmd); setTimeout(() => el.classList.remove('copied'), 1200); };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(cmd).then(done).catch(() => fallbackCopy(cmd, done));
-  else fallbackCopy(cmd, done);
-}
-
-function fallbackCopy(text, cb) {
-  const ta = document.createElement('textarea');
-  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); cb(); } catch(e) {}
-  document.body.removeChild(ta);
-}
-
-document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (document.getElementById('modal').classList.contains('active')) closeModal();
-    else if (activeArea) { activeArea = null; update(); }
+  function closeModal() {
+    document.getElementById('modalBackdrop').classList.remove('open');
+    document.body.style.overflow = '';
   }
-});
-document.getElementById('search').addEventListener('input', () => update());
-update();
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalBackdrop')) closeModal();
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
 </body>
 </html>
 ```
+
+---
+
+## Script sugerido
+
+```python
+import base64, json, re
+from pathlib import Path
+
+SKILL_DIR = Path(__file__).parent
+OUT = Path.cwd() / "one-abi-skills.html"
+
+def b64(p): return base64.b64encode(p.read_bytes()).decode()
+
+skill_md = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+
+def extract_json(header):
+    return re.search(rf"## {header}\s*```json\s*(\{{.*?\}})\s*```", skill_md, re.S).group(1)
+
+pillars    = json.loads(extract_json("PILLARS_DATA"))["pillars"]
+items_data = json.loads(extract_json("ITEMS_DATA"))
+items_type = json.loads(extract_json("ITEMS_TYPE"))
+template   = re.search(r"## HTML_TEMPLATE\s*```html\s*(<!doctype.*?</html>)\s*```", skill_md, re.S).group(1)
+
+TOOLS     = set(items_type["tools"])
+REPORTING = set(items_type["reporting"])
+
+def item_class(name):
+    if name in TOOLS:     return "item item-tool"
+    if name in REPORTING: return "item item-report"
+    return "item"
+
+def esc(s): return s.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n")
+
+def card(p):
+    items = ""
+    for name in p["items"]:
+        d = items_data.get(name, {})
+        cls = item_class(name)
+        items += (
+            f'<button class="{cls}" type="button" '
+            f'onclick="openModal(\'{esc(name)}\',\'{esc(d.get("cmd",""))}\','
+            f'\'{esc(d.get("func",""))}\',\'{esc(d.get("files","—"))}\')">'+
+            f'{name}</button>'
+        )
+    return (
+        '<article class="pillar">'
+        '<div class="pillar-top">'
+        f'<div class="pillar-num">{p["num"]}.</div>'
+        f'<h2 class="pillar-name">{p["name"]}</h2>'
+        f'<p class="pillar-desc">{p["desc"]}</p>'
+        '</div>'
+        '<div class="divider"></div>'
+        f'<div class="items">{items}</div>'
+        '</article>'
+    )
+
+cards = "\n".join(card(p) for p in pillars)
+
+html = (template
+    .replace("/* LOGO_B64 */", b64(SKILL_DIR / "one-abi-way-logo.png"))
+    .replace("/* AV_LIGHT */", b64(SKILL_DIR / "fonts/Avantt-Light.ttf"))
+    .replace("/* AV_REG */",   b64(SKILL_DIR / "fonts/Avantt-Regular.ttf"))
+    .replace("/* AV_SB */",    b64(SKILL_DIR / "fonts/Avantt-SemiBold.ttf"))
+    .replace("/* AV_BOLD */",  b64(SKILL_DIR / "fonts/Avantt-Bold.ttf"))
+    .replace("<!-- PILLARS_CARDS -->", cards)
+)
+
+OUT.write_text(html, encoding="utf-8")
+print(f"Wrote {OUT}")
+```
+
+---
+
+## Archivos incluidos en la skill
+
+- `SKILL.md` (este archivo)
+- `one-abi-way-logo.png` — logo ONE ABI WAY con emblema amarillo
+- `fonts/Avantt-Light.ttf`
+- `fonts/Avantt-Regular.ttf`
+- `fonts/Avantt-SemiBold.ttf`
+- `fonts/Avantt-Bold.ttf`
