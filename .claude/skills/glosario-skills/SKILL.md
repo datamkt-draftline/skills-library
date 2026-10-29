@@ -36,7 +36,7 @@ Usá el script Python de abajo para hacer el base64 y la sustitución.
       "num": "01",
       "name": "Category",
       "desc": "Define the key opportunities to Lead and Grow the category",
-      "items": []
+      "items": ["Sauron"]
     },
     {
       "num": "02",
@@ -60,7 +60,7 @@ Usá el script Python de abajo para hacer el base64 y la sustitución.
       "num": "05",
       "name": "Connections and Creativity",
       "desc": "Connect with our consumers effectively to drive growth",
-      "items": ["Influencer Audience", "Media Investment", "Content Tracker"]
+      "items": ["Influencer Audience", "Argos", "Media Investment", "Content Tracker"]
     },
     {
       "num": "06",
@@ -92,27 +92,27 @@ Usá el script Python de abajo para hacer el base64 y la sustitución.
   "PPT": {
     "cmd": "/presentacion-bu-las-cmq",
     "func": "Genera presentaciones PowerPoint (.pptx) editables con la identidad visual de BU LAS + Cervecería y Maltería Quilmes a partir de un brief, información o archivos aportados por el usuario.",
-    "files": "Brief en texto, Word, PDF o imágenes de referencia. Opcional: logos, datos de la marca."
+    "files": "No requiere archivos."
   },
   "Remy": {
     "cmd": "/remy",
     "func": "Genera recomendaciones de innovación de producto basadas en tendencias de consumo, análisis de portfolio y oportunidades de mercado detectadas en data interna.",
-    "files": "Opcional: brief de innovación, datos de ventas o reporte de tendencias."
+    "files": "Brief y todos los conceptos a analizar."
   },
   "Influencer Audience": {
     "cmd": "/influencer-audience",
     "func": "Genera un PPTX con el reporte de audiencia de los influencers según datos de CreatorIQ.",
-    "files": "Datos de influencers exportados de CreatorIQ (xlsx o JSON)."
+    "files": "No requiere archivos."
   },
   "Media Investment": {
     "cmd": "/inversion-abi-dashboard",
     "func": "Genera un HTML interactivo y link a dashboard (Netlify) de inversiones en medios por marca, sistema y período.",
-    "files": "Archivo xlsx con el plan de inversiones (formato ABI estándar)."
+    "files": "No requiere archivos."
   },
   "Content Tracker": {
     "cmd": "/content-tracker",
     "func": "Trackea y organiza el contenido publicado por marca y canal, mostrando estado, fechas y métricas clave en un dashboard HTML.",
-    "files": "Opcional: xlsx con el calendario de contenidos o exportación de la plataforma de social media."
+    "files": "No requiere archivos."
   },
   "Gantt": {
     "cmd": "/gantt",
@@ -122,6 +122,16 @@ Usá el script Python de abajo para hacer el base64 y la sustitución.
   "Glosario Skills": {
     "cmd": "/glosario-skills",
     "func": "Genera un HTML interactivo con todas las skills disponibles, organizadas por área, con filtros y detalle de cada skill en modal.",
+    "files": "No requiere archivos."
+  },
+  "Sauron": {
+    "cmd": "/sauron-weekly",
+    "func": "Actualiza el dashboard de weekly news con información de noticias de los portales y tendencias de twitter.",
+    "files": "No requiere archivos."
+  },
+  "Argos": {
+    "cmd": "/argos-discovery",
+    "func": "Hace un discovery de influencers en instagram en base a distintos pilares de comunicación y genera un HTML con los resultados.",
     "files": "No requiere archivos."
   }
 }
@@ -136,7 +146,7 @@ Clasificación de items por tipo (para asignar clases CSS de hover):
 ```json
 {
   "tools":     ["Gantt", "Glosario Skills", "PPT", "Remy"],
-  "reporting": ["Analyze Survey", "Influencer Audience", "Media Investment", "Content Tracker"]
+  "reporting": ["Analyze Survey", "Influencer Audience", "Media Investment", "Content Tracker", "Sauron", "Argos"]
 }
 ```
 
@@ -415,7 +425,19 @@ def b64(p): return base64.b64encode(p.read_bytes()).decode()
 skill_md = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
 
 def extract_json(header):
-    return re.search(rf"## {header}\s*```json\s*(\{{.*?\}})\s*```", skill_md, re.S).group(1)
+    m = re.search(rf"## {header}.*?```json\s*", skill_md, re.S)
+    if not m:
+        raise ValueError(f"Section {header} not found")
+    start = skill_md.index('{', m.end())
+    depth = 0
+    for i, c in enumerate(skill_md[start:], start):
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+            if depth == 0:
+                return skill_md[start:i+1]
+    raise ValueError(f"Unmatched braces in {header}")
 
 pillars    = json.loads(extract_json("PILLARS_DATA"))["pillars"]
 items_data = json.loads(extract_json("ITEMS_DATA"))
