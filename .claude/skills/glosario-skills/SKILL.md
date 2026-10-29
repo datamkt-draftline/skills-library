@@ -87,52 +87,62 @@ Usá el script Python de abajo para hacer el base64 y la sustitución.
   "Analyze Survey": {
     "cmd": "/analyze-survey",
     "func": "Analiza resultados de encuestas siguiendo una metodología por pasos y genera dashboard HTML + xlsx procesado con el detalle por pregunta.",
-    "files": "Archivo xlsx con los resultados de la encuesta (respuestas en bruto)."
+    "files": "Archivo xlsx con los resultados de la encuesta (respuestas en bruto).",
+    "prompt": "Quiero analizar los resultados de la encuesta con /analyze-survey"
   },
   "PPT": {
     "cmd": "/presentacion-bu-las-cmq",
     "func": "Genera presentaciones PowerPoint (.pptx) editables con la identidad visual de BU LAS + Cervecería y Maltería Quilmes a partir de un brief, información o archivos aportados por el usuario.",
-    "files": "No requiere archivos."
+    "files": "No requiere archivos.",
+    "prompt": "Quiero que usemos /presentacion-bu-las-cmq y me ayudes a generar una presentación sobre..."
   },
   "Remy": {
     "cmd": "/remy",
     "func": "Genera recomendaciones de innovación de producto basadas en tendencias de consumo, análisis de portfolio y oportunidades de mercado detectadas en data interna.",
-    "files": "Brief y todos los conceptos a analizar."
+    "files": "Brief y todos los conceptos a analizar.",
+    "prompt": "Quiero usar /remy para analizar conceptos del pilar..."
   },
   "Influencer Audience": {
     "cmd": "/influencer-audience",
     "func": "Genera un PPTX con el reporte de audiencia de los influencers según datos de CreatorIQ.",
-    "files": "No requiere archivos."
+    "files": "No requiere archivos.",
+    "prompt": "Quiero el reporte de audiencia del influencer @..."
   },
   "Media Investment": {
     "cmd": "/inversion-abi-dashboard",
     "func": "Genera un HTML interactivo y link a dashboard (Netlify) de inversiones en medios por marca, sistema y período.",
-    "files": "No requiere archivos."
+    "files": "No requiere archivos.",
+    "prompt": "Mostrame el dashboard de inversiones con /inversion-abi-dashboard"
   },
   "Content Tracker": {
     "cmd": "/content-tracker",
     "func": "Trackea y organiza el contenido publicado por marca y canal, mostrando estado, fechas y métricas clave en un dashboard HTML.",
-    "files": "No requiere archivos."
+    "files": "No requiere archivos.",
+    "prompt": "Mostrame el content tracker con /content-tracker"
   },
   "Gantt": {
     "cmd": "/gantt",
     "func": "Genera un HTML con el gantt del excel adjunto. También se puede pedir el template para armar el excel.",
-    "files": "Archivo xlsx con el plan de trabajo (formato Gantt ABI). Opcional: pedir template."
+    "files": "Archivo xlsx con el plan de trabajo (formato Gantt ABI). Opcional: pedir template.",
+    "prompt": "Mostrame el Gantt HTML para el archivo adjunto"
   },
   "Glosario Skills": {
     "cmd": "/glosario-skills",
     "func": "Genera un HTML interactivo con todas las skills disponibles, organizadas por área, con filtros y detalle de cada skill en modal.",
-    "files": "No requiere archivos."
+    "files": "No requiere archivos.",
+    "prompt": "Quiero ver el glosario de skills con /glosario-skills"
   },
   "Sauron": {
     "cmd": "/sauron-weekly",
     "func": "Actualiza el dashboard de weekly news con información de noticias de los portales y tendencias de twitter.",
-    "files": "No requiere archivos."
+    "files": "No requiere archivos.",
+    "prompt": "Quiero actualizar el weekly dashboard con /sauron-weekly"
   },
   "Argos": {
     "cmd": "/argos-discovery",
     "func": "Hace un discovery de influencers en instagram en base a distintos pilares de comunicación y genera un HTML con los resultados.",
-    "files": "No requiere archivos."
+    "files": "No requiere archivos.",
+    "prompt": "Quiero hacer el discovery de influencers con /argos-discovery"
   }
 }
 ```
@@ -165,7 +175,7 @@ Clasificación de items por tipo (para asignar clases CSS de hover):
   <div class="items">
     <!-- por cada item: asigná class "item item-tool", "item item-report" o "item" según ITEMS_TYPE -->
     <button class="item {type_class}" type="button"
-      onclick="openModal('{name}','{cmd}','{func}','{files}')">{name}</button>
+      onclick="openModal('{name}','{cmd}','{func}','{files}','{prompt}')">{name}</button>
   </div>
 </article>
 ```
@@ -337,14 +347,42 @@ Escapá las comillas simples en los atributos `onclick` con `\'`. Si `items` est
   }
   .modal-close:hover { color: var(--ink); background: #f0f0f0; }
   .modal-title { font-size: 20px; font-weight: 700; margin: 0 0 6px; color: var(--ink); }
+  .modal-cmd-row { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
   .modal-cmd {
     display: inline-block;
     background: #1a1a1a; color: #FFD100;
     font-family: 'Avantt', monospace;
     font-size: 13px; font-weight: 600;
     padding: 5px 14px; border-radius: 999px;
-    margin-bottom: 20px; letter-spacing: .02em;
+    letter-spacing: .02em;
   }
+  .copy-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px;
+    background: #f3f3f3;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #555;
+    transition: background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease;
+    padding: 0;
+    position: relative;
+  }
+  .copy-btn:hover { background: #FFD100; color: #1a1a1a; border-color: #D4A843; }
+  .copy-btn.copied { background: #16a34a; color: #fff; border-color: #15803d; }
+  .copy-btn svg { width: 14px; height: 14px; }
+  .copy-tooltip {
+    position: absolute;
+    top: -30px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; color: #fff;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+  }
+  .copy-btn.copied .copy-tooltip { opacity: 1; }
   .modal-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #a3a3a3; margin: 0 0 5px; }
   .modal-section-body { font-size: 13.5px; font-weight: 400; color: #333; line-height: 1.6; margin: 0 0 18px; }
   .modal-section-body:last-child { margin-bottom: 0; }
@@ -365,7 +403,16 @@ Escapá las comillas simples en los atributos `onclick` con `\'`. Si `items` est
   <div class="modal" id="modal">
     <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">&times;</button>
     <h2 class="modal-title" id="mTitle"></h2>
-    <span class="modal-cmd" id="mCmd"></span>
+    <div class="modal-cmd-row">
+      <span class="modal-cmd" id="mCmd"></span>
+      <button class="copy-btn" id="mCopy" type="button" onclick="copyPrompt(event)" aria-label="Copiar prompt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span class="copy-tooltip">Copiado!</span>
+      </button>
+    </div>
     <p class="modal-section-label">Funcionalidad</p>
     <p class="modal-section-body" id="mFunc"></p>
     <p class="modal-section-label">Archivos requeridos</p>
@@ -388,13 +435,41 @@ Escapá las comillas simples en los atributos `onclick` con `\'`. Si `items` est
 </div>
 
 <script>
-  function openModal(name, cmd, func, files) {
+  let currentPrompt = '';
+  function openModal(name, cmd, func, files, prompt) {
     document.getElementById('mTitle').textContent = name;
     document.getElementById('mCmd').textContent   = cmd;
     document.getElementById('mFunc').textContent  = func;
     document.getElementById('mFiles').textContent = files;
+    currentPrompt = prompt || '';
+    document.getElementById('mCopy').classList.remove('copied');
     document.getElementById('modalBackdrop').classList.add('open');
     document.body.style.overflow = 'hidden';
+  }
+  function copyPrompt(e) {
+    e.stopPropagation();
+    const btn = document.getElementById('mCopy');
+    const done = () => {
+      btn.classList.add('copied');
+      setTimeout(() => btn.classList.remove('copied'), 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(currentPrompt).then(done).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = currentPrompt;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (_) {}
+        document.body.removeChild(ta);
+      });
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = currentPrompt;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (_) {}
+      document.body.removeChild(ta);
+    }
   }
   function closeModal() {
     document.getElementById('modalBackdrop').classList.remove('open');
@@ -462,7 +537,8 @@ def card(p):
         items += (
             f'<button class="{cls}" type="button" '
             f'onclick="openModal(\'{esc(name)}\',\'{esc(d.get("cmd",""))}\','
-            f'\'{esc(d.get("func",""))}\',\'{esc(d.get("files","—"))}\')">'+
+            f'\'{esc(d.get("func",""))}\',\'{esc(d.get("files","—"))}\','
+            f'\'{esc(d.get("prompt",""))}\')">'+
             f'{name}</button>'
         )
     return (
