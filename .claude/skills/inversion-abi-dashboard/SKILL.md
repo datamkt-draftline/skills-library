@@ -1,5 +1,5 @@
 ---
-name: Dashboard Inversiones ABI
+name: inversion-abi-dashboard
 description: Genera un HTML interactivo (standalone, con login) del dashboard de inversiones ABI 2026 a partir del Excel "Inversion x Marca y Quarter ABInBev 2026". Activa cuando el usuario sube ese Excel o pide actualizar/regenerar el dashboard de inversiones.
 action: true
 ---
@@ -52,7 +52,7 @@ en línea (sin fetch externo).
 - El Excel conserva los nombres de pestañas y de columnas originales. Si cambian
   los encabezados de la master o la FX, el script fallará con un mensaje claro.
 - El login hash permanece como el del template (`f2e1d259`). Si el usuario pide
-  cambiar la contraseña, editar `template.html` del skill (buscar `var PW=`).
+  cambiar la contraseña, editar `references/template.html` del skill (buscar `var PW=`).
 - Marcas no listadas en el canónico mantienen su casing original y reciben un
   color del fallback palette.
 
@@ -64,5 +64,18 @@ en línea (sin fetch externo).
 - **Totales en 0**: revisar que la columna D ("Inversion") tenga números
   (no `#DIV/0!` ni fórmulas sin calcular). Los valores con `#VALUE!`, errores de
   fórmula o celdas vacías se tratan como 0.
-- **Grupo "OTROS" inesperado**: ajustar `system_group()` en `scripts/build_dashboard.py`
-  (ver `reference/system_group_map.md` para la tabla documentada).
+- **"Grupo "OTROS" inesperado**: ajustar `system_group()` en `scripts/build_dashboard.py`
+  (ver `references/system_group_map.md` para la tabla documentada).
+
+## Sources of truth
+
+- El archivo xlsx provisto por el usuario es la única fuente de datos de inversión.
+- Usar la pestaña "Distribución x Sistema x Q x Ma" para inversiones y "FX LAS" para tipos de cambio.
+- No inventar datos de meses o marcas que no estén en el archivo.
+- Ver `references/excel-schema.md` para el esquema completo y el manejo de datos faltantes.
+
+## When not to use
+
+- Para dashboards de inversión con un formato diferente al de ABI 2026.
+- Para inversiones de otras BUs fuera de ABInBev LAS.
+- Solo acepta archivos con el esquema definido en `references/excel-schema.md`.

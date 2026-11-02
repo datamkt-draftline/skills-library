@@ -19,6 +19,14 @@ import os
 import sys
 from datetime import date, datetime
 
+# openpyxl may not be on sys.path; probe common locations.
+_PROBE_PATHS = [
+    "/home/agent/work/2026-09-24_6v90j0/.venv/lib/python3.11/site-packages",
+]
+for p in _PROBE_PATHS:
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
+
 try:
     from openpyxl import load_workbook
 except ImportError as e:

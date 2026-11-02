@@ -99,7 +99,7 @@ const NETWORK_ORDER = [
   "web",
 ];
 
-const WARNING_ICON_FILENAME = "warning(1).png";
+const WARNING_ICON_FILENAME = "references/assets/warning.png";
 
 function resolveOptionalAsset(filename) {
   const candidates = [
@@ -124,7 +124,7 @@ function resolveOptionalAsset(filename) {
 const WARNING_ICON_PATH = resolveOptionalAsset(WARNING_ICON_FILENAME);
 let didWarnMissingWarningIcon = false;
 
-const LOGO_FILENAME = "creatoriq-logo.png";
+const LOGO_FILENAME = "references/assets/creatoriq-logo.png";
 const LOGO_PATH = resolveOptionalAsset(LOGO_FILENAME);
 const LOGO_ASPECT = 124 / 24; // from the SVG viewBox 0 0 124 24
 let didWarnMissingLogo = false;
@@ -833,7 +833,7 @@ function addProfilePane(
 
   /*
     El icono se busca con el nombre exacto:
-    warning(1).png
+    references/assets/warning.png
 
     Se ubica junto al título y se mantiene pequeño
     para que quede visualmente alineado con el label.

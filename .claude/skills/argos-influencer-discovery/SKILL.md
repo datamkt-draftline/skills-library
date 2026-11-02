@@ -12,6 +12,11 @@ Tu responsabilidad es ejecutar la búsqueda configurada, seguirla hasta un estad
 
 También podés administrar cuentas excluidas de futuras búsquedas cuando el usuario lo solicite expresamente.
 
+## Sources of truth
+
+- **Potential Influencers Scraping MCP**: fuente primaria para datos de perfiles e influencers. Si falla, abortar y notificar al usuario.
+- **Web Search**: revisión reputacional y verificación de cuentas. Si no retorna resultados, continuar con lo que se tiene.
+
 ## MCP a utilizar
 
 Usá exclusivamente **Potential Influencers Scraping MCP** para iniciar búsquedas, consultar sus resultados y agregar cuentas excluidas.
@@ -19,6 +24,8 @@ Usá exclusivamente **Potential Influencers Scraping MCP** para iniciar búsqued
 - **Potential Influencers Scraping MCP**: `influencers-mcp-144229888125.us-central1.run.app`
 
 Todas las herramientas de este flujo (`start_influencer_search`, `get_influencer_search`, `add_excluded_accounts`) se exponen a través de ese servidor. No invoques herramientas con el mismo nombre expuestas por otros MCPs.
+
+## Flujo 1 — Descubrimiento de influencers
 
 ## 1. Búsquedas de influencers
 
@@ -228,57 +235,6 @@ Web Search no estuvo disponible, las fuentes no pudieron abrirse o no fue posibl
 
 Si la revisión web falla para uno o más perfiles, conservá los resultados válidos del MCP e informá el bloqueo únicamente para los perfiles afectados.
 
-## 5. Administración de cuentas excluidas
-
-Cuando un usuario solicite expresamente agregar una o más cuentas de Instagram a las exclusiones permanentes, utilizá la herramienta `add_excluded_accounts` de Potential Influencers Scraping MCP.
-
-### Comportamiento
-
-- Extraé exclusivamente los usernames proporcionados por el usuario.
-- Se admiten nombres de usuario con o sin `@`.
-- Enviá los nombres de usuario a `add_excluded_accounts(usernames=[...])`.
-- Si el usuario proporcionó un motivo, podés enviarlo mediante el parámetro opcional `note`.
-- No busques perfiles adicionales ni inventes usernames.
-- No llames a `start_influencer_search` ni a `get_influencer_search` para esta operación.
-- No uses Apify ni Web Search para agregar exclusiones.
-- No solicites un `job_id`.
-- No agregues cuentas por iniciativa propia.
-
-### Permisos
-
-Todos los usuarios que tengan acceso general al MCP pueden utilizar la herramienta de exclusiones.
-
-No se necesita ningún scope administrativo adicional.
-
-No solicites al usuario claves API, tokens, secretos ni configuraciones de autenticación para realizar esta operación.
-
-La autenticación entre MCP y backend se maneja internamente mediante la configuración de los servicios.
-
-### Persistencia
-
-Las cuentas agregadas se guardan en Firestore y se utilizan para excluir esos perfiles de futuras búsquedas.
-
-No afirmes que se modificó directamente el archivo `excluded_accounts.json`, porque las incorporaciones realizadas mediante el agente utilizan el almacenamiento persistente del backend.
-
-### Confirmación
-
-Utilizá exclusivamente la respuesta de la herramienta para identificar:
-
-- `added`: cuentas incorporadas correctamente.
-- `already_excluded`: cuentas que ya estaban excluidas.
-- `total_requested`: cantidad total de usernames únicos solicitados.
-
-Si la herramienta devuelve un error, informalo sin afirmar que las cuentas fueron guardadas.
-
-Si el usuario solicita eliminar una exclusión, no afirmes que podés hacerlo mediante `add_excluded_accounts`, porque esta herramienta solamente agrega cuentas.
-
-### Restricciones
-
-- No excluyas automáticamente cuentas a partir de controversias, rumores o denuncias encontradas durante la revisión reputacional.
-- No agregues exclusiones basadas únicamente en inferencias del agente.
-- Las exclusiones manuales requieren siempre una solicitud expresa del usuario.
-- No mezcles operaciones de exclusión con búsquedas, salvo que el usuario haya solicitado explícitamente ambas operaciones.
-
 ## 6. Contrato de salida
 
 **El entregable final SIEMPRE es un HTML standalone** generado a partir de `template.html` (ver sección **Generación del HTML** más abajo). No devuelvas la información como texto plano, listas o tablas en Markdown en el chat: el output es el archivo HTML. En el chat solamente anunciá que lo generaste y confirmá el conteo por vertical.
@@ -477,3 +433,62 @@ Usá exclusivamente Potential Influencers Scraping MCP para las operaciones de b
 - No se mezclan perfiles, métricas, verticales o diagnósticos de distintos jobs.
 - La revisión reputacional web empieza después de obtener los perfiles finales y nunca modifica los datos del MCP.
 - La incorporación de exclusiones es una operación administrativa independiente que requiere autorización.
+
+---
+
+## Flujo 2 — Administración de exclusiones
+
+## 5. Administración de cuentas excluidas
+
+Cuando un usuario solicite expresamente agregar una o más cuentas de Instagram a las exclusiones permanentes, utilizá la herramienta `add_excluded_accounts` de Potential Influencers Scraping MCP.
+
+### Confirmación previa obligatoria
+
+Antes de agregar cualquier cuenta a la lista de exclusiones, confirmá con el usuario: mostrá el handle exacto y pedí confirmación explícita antes de ejecutar `add_excluded_accounts`. No ejecutes la operación sin esta confirmación.
+
+### Comportamiento
+
+- Extraé exclusivamente los usernames proporcionados por el usuario.
+- Se admiten nombres de usuario con o sin `@`.
+- Enviá los nombres de usuario a `add_excluded_accounts(usernames=[...])`.
+- Si el usuario proporcionó un motivo, podés enviarlo mediante el parámetro opcional `note`.
+- No busques perfiles adicionales ni inventes usernames.
+- No llames a `start_influencer_search` ni a `get_influencer_search` para esta operación.
+- No uses Apify ni Web Search para agregar exclusiones.
+- No solicites un `job_id`.
+- No agregues cuentas por iniciativa propia.
+
+### Permisos
+
+Todos los usuarios que tengan acceso general al MCP pueden utilizar la herramienta de exclusiones.
+
+No se necesita ningún scope administrativo adicional.
+
+No solicites al usuario claves API, tokens, secretos ni configuraciones de autenticación para realizar esta operación.
+
+La autenticación entre MCP y backend se maneja internamente mediante la configuración de los servicios.
+
+### Persistencia
+
+Las cuentas agregadas se guardan en Firestore y se utilizan para excluir esos perfiles de futuras búsquedas.
+
+No afirmes que se modificó directamente el archivo `excluded_accounts.json`, porque las incorporaciones realizadas mediante el agente utilizan el almacenamiento persistente del backend.
+
+### Confirmación de resultado
+
+Utilizá exclusivamente la respuesta de la herramienta para identificar:
+
+- `added`: cuentas incorporadas correctamente.
+- `already_excluded`: cuentas que ya estaban excluidas.
+- `total_requested`: cantidad total de usernames únicos solicitados.
+
+Si la herramienta devuelve un error, informalo sin afirmar que las cuentas fueron guardadas.
+
+Si el usuario solicita eliminar una exclusión, no afirmes que podés hacerlo mediante `add_excluded_accounts`, porque esta herramienta solamente agrega cuentas.
+
+### Restricciones
+
+- No excluyas automáticamente cuentas a partir de controversias, rumores o denuncias encontradas durante la revisión reputacional.
+- No agregues exclusiones basadas únicamente en inferencias del agente.
+- Las exclusiones manuales requieren siempre una solicitud expresa del usuario.
+- No mezcles operaciones de exclusión con búsquedas, salvo que el usuario haya solicitado explícitamente ambas operaciones.

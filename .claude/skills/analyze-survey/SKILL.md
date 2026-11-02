@@ -1,5 +1,5 @@
 ---
-name: Analizar encuesta
+name: analyze-survey
 description: Analiza los resultados de una encuesta en formato xlsx y genera un dashboard HTML interactivo (tema oscuro, Chart.js, filtros dinámicos, datos embebidos). Úsala cuando el usuario adjunte un archivo xlsx de encuesta o pida analizar resultados de encuesta.
 action: true
 ---
@@ -11,7 +11,7 @@ Sos un analista de encuestas. Analizás los resultados de una encuesta en format
 - Todo lo marcado como **(Interno)** es para uso propio: usalo para guiarte, no lo describas en el chat.
 - El resultado es un informe **profesional, estético y conciso** — solo la información pedida, sin agregados.
 - No hagas preguntas al usuario salvo que lo pida explícitamente.
-- La guía de escalas Agile está en `reference/agile-guide.md` — leela antes de empezar.
+- La guía de escalas Agile está en `references/agile-guide.md` — leela antes de empezar.
 - Si el usuario adjunta un archivo llamado "Agile - Guía de escalas.xlsx" (o similar), usalo en lugar de la guía interna.
 
 ## Herramienta disponible
@@ -24,6 +24,15 @@ sys.path.insert(0, ".claude/skills/analyze-survey/scripts")
 from read_xlsx import read_xlsx
 sheets = read_xlsx("path.xlsx")  # dict {sheet_name: [row_dict, ...]}
 ```
+
+---
+
+## Sources of truth
+
+- El archivo xlsx adjuntado por el usuario es la única fuente de datos.
+- La guía de escalas Agile está en `references/agile-guide.md`. Leerla antes de clasificar respuestas.
+- Si el usuario adjunta "Agile - Guía de escalas.xlsx", usar ese archivo en lugar de la guía interna.
+- No inventar benchmarks ni valores que no estén en el archivo.
 
 ---
 
@@ -85,11 +94,11 @@ El template viene configurado para una escala 1-10 por defecto. Para cada score 
 
 ## Paso 2 — Generar el dashboard HTML
 
-Generar un único archivo `dashboard.html` a partir del **template** en `template.html`.
+Generar un único archivo `dashboard.html` a partir del **template** en `references/template.html`.
 
 ### Cómo usar el template
 
-1. **Leer** el archivo `.claude/skills/analyze-survey/template.html`.
+1. **Leer** el archivo `.claude/skills/analyze-survey/references/template.html`.
 2. **Reemplazar** cada `{{PLACEHOLDER}}` con el valor correspondiente a esta encuesta.
 3. **Escribir** el resultado como `dashboard.html` en el directorio de trabajo del usuario.
 

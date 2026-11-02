@@ -1,5 +1,5 @@
 ---
-name: Leila
+name: leila
 description: Análisis de social listening de comentarios de redes sociales desde xlsx, csv, txt o texto pegado directo en el chat. Detecta automáticamente la columna/estructura de comentarios y fechas, clasifica los temas de conversación en dos pasadas, estima el enfoque general, busca menciones de cerveza / CMQ / marcas, y entrega un HTML interactivo con gráficos y la descarga del archivo limpio. Activar cuando el usuario adjunta un archivo o pega texto crudo de comentarios y pide un análisis tipo Leila.
 action: true
 ---
@@ -193,7 +193,7 @@ asombro, etc.
 
 Escribí un párrafo (3-5 líneas) describiendo el enfoque **dominante** sin
 ambigüedades. Nada de "quizás", "en parte", "podría ser". Dato duro. Ejemplos
-de tono en `reference/ejemplos.md`.
+de tono en `references/ejemplos.md`.
 
 ---
 
@@ -273,7 +273,7 @@ write_comments_xlsx(xlsx_path, det["comments"])
 | `{{CLEAN_FILENAME}}` | Nombre del CSV limpio (`<output_stem>_comments.csv`) — usado para el botón de descarga del CSV embebido. |
 | `{{CLEAN_CSV_B64}}` | CSV con una columna `comment` por fila, codificado en base64. |
 | `{{GENERATED_AT}}` | Timestamp local, `YYYY-MM-DD HH:MM`. |
-| `{{CHARTJS_INLINE}}` | Contenido completo de `.claude/skills/leila/assets/chartjs.min.js` (Chart.js UMD min, ~210 KB). Reemplazar como texto plano, no como string JS. |
+| `{{CHARTJS_INLINE}}` | Contenido completo de `.claude/skills/leila/references/assets/chartjs.min.js` (Chart.js UMD min, ~210 KB). Reemplazar como texto plano, no como string JS. |
 
 ### Formato de BEER_SECTION
 
@@ -314,7 +314,7 @@ clean_csv_b64 = base64.b64encode(buf.getvalue().encode("utf-8")).decode("ascii")
 ### Inyectar Chart.js inline
 
 ```python
-chartjs_path = ".claude/skills/leila/assets/chartjs.min.js"
+chartjs_path = ".claude/skills/leila/references/assets/chartjs.min.js"
 with open(chartjs_path, encoding="utf-8") as f:
     chartjs_inline = f.read()
 # Después reemplazá {{CHARTJS_INLINE}} con chartjs_inline (texto plano).
@@ -394,3 +394,9 @@ print("✓ Validación OK")
 - No usar nltk, pandas ni openpyxl (no están instalados). El script está en
   stdlib puro.
 - No mostrar código al usuario; mostrar siempre el HTML renderizado.
+
+## Sources of truth
+
+- La única fuente de datos es el archivo o texto proporcionado por el usuario (xlsx, csv, txt o texto pegado).
+- Si no se puede detectar automáticamente la estructura (columna de comentarios, fechas), solicitar al usuario que aclare antes de continuar.
+- No inventar comentarios, volúmenes ni tendencias que no estén en el input.

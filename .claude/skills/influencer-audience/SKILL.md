@@ -1,5 +1,5 @@
 ---
-name: Influencer Audience Report
+name: influencer-audience
 description: Genera una presentación PPTX editable con audience intelligence de uno o más influencers (biografía, partnerships, demographics, follower history) a partir de datos de CreatorIQ. Se activa cuando el usuario pide un reporte, deck o presentación de un creator o lista de creators.
 action: true
 ---
@@ -26,8 +26,10 @@ Un archivo `.pptx` con:
 ├── config.json                    # api_key + base_url
 ├── package.json                   # dependencias node
 ├── pptx_report_generator.js       # generador canónico
-├── creatoriq-logo.png             # logo (top-left del deck)
-├── warning(1).png                 # icono para "Puntos a discutir"
+├── references/
+│   └── assets/
+│       ├── creatoriq-logo.png     # logo (top-left del deck)
+│       └── warning.png            # icono para "Puntos a discutir"
 └── scripts/
     ├── fetch_creator.py           # wrapper del MCP /api/creator (full data)
     └── fetch_audience.py          # legacy: sólo demographics agregados
@@ -152,7 +154,7 @@ Si el usuario pide "un deck con A, B y C", agregá los 3 objetos al array `creat
 | `Cannot find module 'pptxgenjs'` | Falta `npm install` dentro del folder de la skill. |
 | `success: false, code: HTTP_404` | El handle no existe en CreatorIQ. Verificar typo o pedir otro. |
 | `code: HTTP_0` | DNS / sin red. El entorno probablemente no tiene acceso externo. |
-| Deck sin logo | El .png de logo no está junto al .js. Comprobá que `creatoriq-logo.png` esté en la carpeta de la skill. |
+| Deck sin logo | El .png de logo no está en la ruta esperada. Comprobá que `references/assets/creatoriq-logo.png` esté en la carpeta de la skill. |
 | Mojibake (`Ã³`, `â€"`) en el deck | El `report-data.json` se guardó con encoding erróneo. Guardalo siempre en UTF-8. |
 | `removedDanglingContentTypeOverrides` en el output | No es error — es una autorepración del zip del generador. Ignorar. |
 
@@ -162,3 +164,19 @@ Si el usuario pide "un deck con A, B y C", agregá los 3 objetos al array `creat
 - `country` / `location` = ubicación geográfica, **no** ciudadanía ni nacionalidad.
 - `audienceCredibility` es un score 0-100: valores < 70 ameritan señalarse como "revisar" en Puntos a discutir.
 - No todos los networks exponen audience — Twitter/Facebook suelen venir con `audience: null`.
+
+## Sources of truth
+
+- **CreatorIQ**: fuente de datos cuantitativos (followers, engagement rate, demographics, historial de seguidores). Si la herramienta de CreatorIQ falla o no retorna datos, abortar y notificar al usuario.
+- **Web Search**: datos cualitativos (biografía, partnerships recientes verificados). Si falla, continuar con los datos disponibles de CreatorIQ.
+
+## Ejecución y dependencias
+
+El reporte se genera con el script `pptx_report_generator.js` (Node.js).
+
+**Ejecución:**
+```bash
+node pptx_report_generator.js
+```
+
+**Dependencias:** declaradas en `package.json`, versiones fijadas en `package-lock.json`. Correr `npm ci` para instalar. No modificar versiones sin revisar compatibilidad con el script.
