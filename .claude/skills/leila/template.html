@@ -326,10 +326,6 @@
       <div class="value small">{{PERIOD_LABEL}}</div>
     </div>
     <div class="kpi">
-      <div class="label">Uso de emojis</div>
-      <div class="value small" style="text-transform:capitalize">{{EMOJI_LEVEL}}</div>
-    </div>
-    <div class="kpi">
       <div class="label">Menciones Quilmes / CMQ</div>
       <div class="value">{{BEER_COUNT}}</div>
     </div>
@@ -343,11 +339,6 @@
         <div class="donut-box">
           <canvas id="topicsChart"></canvas>
         </div>
-        <div class="tone-legend">
-          <span class="pos">Pos</span>
-          <span class="neu">Neu</span>
-          <span class="neg">Neg</span>
-        </div>
         <div style="margin-top:10px">
           <button class="ghost" onclick="downloadChart('topicsChart','temas.png')">Exportar</button>
         </div>
@@ -355,6 +346,11 @@
       <div class="legend-panel" id="topicsLegend">
         <!-- rendered by JS -->
       </div>
+    </div>
+    <div class="tone-legend" style="justify-content:center;margin:16px 0 8px">
+      <span class="pos">Pos</span>
+      <span class="neu">Neu</span>
+      <span class="neg">Neg</span>
     </div>
     <div class="topics-grid" id="topicsGrid">
       <!-- rendered by JS -->
@@ -415,7 +411,7 @@
   root.style.setProperty('--accent-light', _t.light);
   root.style.setProperty('--accent-border', _t.border);
 
-  const PALETTE = ['#4f46e5','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#14b8a6','#f97316','#6366f1','#64748b'];
+  const PALETTE = ['#4f46e5','#0ea5e9','#8b5cf6','#14b8a6','#6366f1','#38bdf8','#a78bfa','#818cf8','#06b6d4','#64748b'];
   TOPICS.forEach((t, i) => { t.color = PALETTE[i % PALETTE.length]; });
 
   Chart.defaults.color = '#8a94ad';
@@ -505,7 +501,7 @@
     // Legend
     const legend = document.getElementById('topicsLegend');
     if (legend) {
-      legend.innerHTML = TOPICS.map((t, i) =>
+      legend.innerHTML = [...TOPICS].sort((a,b)=>b.pct-a.pct).map((t, i) =>
         `<div class="legend-row" data-i="${i}" style="border-left:3px solid ${t.color};margin:0 -4px;padding-left:12px">
            <span class="legend-label">${t.name}</span>
            <span class="legend-pct" style="color:${t.color}">${t.pct.toFixed(1)}%</span>
@@ -520,7 +516,7 @@
     // Cards
     const grid = document.getElementById('topicsGrid');
     if (!grid) return;
-    grid.innerHTML = TOPICS.map((t, i) => {
+    grid.innerHTML = [...TOPICS].sort((a,b)=>b.pct-a.pct).map((t, i) => {
       const pos = t.tone?.pos||0, neu = t.tone?.neu||0, neg = t.tone?.neg||0;
       const sum = pos+neu+neg||1;
       const p = x => (100*x/sum).toFixed(1);
@@ -548,24 +544,81 @@
   // ---- Emoji grid ----
   (function(){
     const el = document.getElementById('emojiGrid');
+    if (!el) return;
     if (!EMOJIS.length) { el.innerHTML = '<p style="color:#4e5870;grid-column:1/-1;text-align:center">Sin emojis detectados.</p>'; return; }
     el.innerHTML = EMOJIS.map(e =>
       `<div class="emoji-cell" title="${e.char} × ${e.count}"><span class="ch">${e.char}</span><span class="n">× ${e.count}</span></div>`
     ).join('');
   })();
 
-  // ---- Word cloud ----
+  // ---- Word cloud (DOM spiral, canvas-measured) ----
   (function(){
-    const el = document.getElementById('wordCloud');
-    if (!WORDS.length) { el.innerHTML = '<p style="color:#4e5870">Sin palabras suficientes.</p>'; return; }
-    const max = Math.max(...WORDS.map(w=>w.count));
-    const min = Math.min(...WORDS.map(w=>w.count));
-    const sz = c => (13 + 26 * ((c-min)/(max-min||1))).toFixed(1)+'px';
-    const op = c => (0.55 + 0.45 * ((c-min)/(max-min||1))).toFixed(2);
-    const cols = ['#818cf8','#38bdf8','#34d399','#fbbf24','#f87171','#c084fc','#2dd4bf','#fb923c'];
-    el.innerHTML = WORDS.map((w,i) =>
-      `<span class="wc" style="font-size:${sz(w.count)};color:${cols[i%cols.length]};opacity:${op(w.count)}" title="${w.text}: ${w.count}">${w.text}</span>`
-    ).join('');
+    const container = document.getElementById('wordCloud');
+    if (!WORDS.length) { container.innerHTML = '<p style="color:#4e5870">Sin palabras suficientes.</p>'; return; }
+
+    function build() {
+      const W = container.getBoundingClientRect().width || 860;
+      const H = 300;
+      container.style.position = 'relative';
+      container.style.height = H + 'px';
+      container.style.overflow = 'hidden';
+
+      const counts = WORDS.map(w => w.count);
+      const lo = Math.min(...counts), hi = Math.max(...counts);
+      const getFs = c => Math.round(12 + (c - lo) / ((hi - lo) || 1) * 46);
+
+      const COLS = ['#FE2C55','#ff6b81','#ffffff','#ff8fa3','#ffccd5','#e8ecf6','#ff4d6d','#c9184a','#ff758c'];
+      const FONT = '-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Arial,sans-serif';
+      const MARGIN = 5;
+
+      const mc = document.createElement('canvas');
+      const mctx = mc.getContext('2d');
+
+      const wordData = [...WORDS]
+        .sort((a, b) => b.count - a.count)
+        .map((w, i) => {
+          const fs = getFs(w.count);
+          mctx.font = 'bold ' + fs + 'px ' + FONT;
+          const tw = mctx.measureText(w.text).width;
+          const th = fs * 1.25;
+          return { text: w.text, fs, tw, th, color: COLS[i % COLS.length] };
+        });
+
+      const placed = [];
+      function collides(nx, ny, bw, bh) {
+        for (const p of placed) {
+          if (Math.abs(nx - p.x) < (bw + p.bw) / 2 + MARGIN &&
+              Math.abs(ny - p.y) < (bh + p.bh) / 2 + MARGIN) return true;
+        }
+        return false;
+      }
+
+      let s = 0x6D2B79F5;
+      const rand = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+
+      wordData.forEach(entry => {
+        const { tw, th } = entry;
+        const a0 = rand() * Math.PI * 2;
+        for (let i = 0; i < 8000; i++) {
+          const r = 0.8 * i, theta = a0 + i * 0.26;
+          const x = W / 2 + r * Math.cos(theta);
+          const y = H / 2 + r * Math.sin(theta) * 0.62;
+          if (x - tw/2 < 2 || x + tw/2 > W-2 || y - th/2 < 2 || y + th/2 > H-2) continue;
+          if (!collides(x, y, tw, th)) {
+            const span = document.createElement('span');
+            span.textContent = entry.text;
+            span.style.cssText = 'position:absolute;font-size:' + entry.fs + 'px;font-weight:bold;font-family:' + FONT +
+              ';color:' + entry.color + ';left:' + (x - tw/2).toFixed(1) + 'px;top:' + (y - th/2).toFixed(1) +
+              'px;white-space:nowrap;line-height:1;cursor:default;user-select:none';
+            container.appendChild(span);
+            placed.push({ x, y, bw: tw, bh: th });
+            break;
+          }
+        }
+      });
+    }
+
+    requestAnimationFrame(function(){ requestAnimationFrame(build); });
   })();
 
   // ---- Helpers ----
