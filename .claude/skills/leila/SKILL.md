@@ -195,6 +195,11 @@ Escribí un párrafo (3-5 líneas) describiendo el enfoque **dominante** sin
 ambigüedades. Nada de "quizás", "en parte", "podría ser". Dato duro. Ejemplos
 de tono en `references/ejemplos.md`.
 
+**Importante:** no uses frases extremistas ni absolutos hiperbólicos ("todo el mundo",
+"nadie", "absolutamente", "destruye", "explota"). Hacé un resumen factual y equilibrado
+basado en los temas y el sentimiento real del reporte: mencioná los temas principales
+con sus porcentajes, y describí el tono general (positivo/negativo/mixto) sin dramatizar.
+
 ---
 
 ## Paso 4 — Menciones de cerveza / CMQ / marcas
