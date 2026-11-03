@@ -210,8 +210,10 @@ def _slug(s):
 def generate(input_path, output_path=None):
     data = read_workbook(input_path)
     if output_path is None:
+        from datetime import date
         slug = _slug(data["config"].get("titulo") or "gantt")
-        output_path = os.path.join(os.path.dirname(os.path.abspath(input_path)), f"{slug}-gantt.html")
+        fecha = date.today().strftime("%Y-%m-%d")
+        output_path = os.path.join(os.path.dirname(os.path.abspath(input_path)), f"gantt_{slug}_{fecha}.html")
 
     html = (_load_template()
             .replace("__TITULO__", data["config"]["titulo"])
