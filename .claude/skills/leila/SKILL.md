@@ -249,7 +249,7 @@ xlsx_path = f"{output_stem}_comments.xlsx"  # misma carpeta que el HTML
 write_comments_xlsx(xlsx_path, det["comments"])
 ```
 
-- `output_stem` = `leila_<slug>_<YYYY-MM-DD>` (igual que para el HTML).
+- `output_stem` = `leila_<tema>_<YYYY-MM-DD>` (igual que para el HTML).
 - Dejalo al lado del HTML en el work folder.
 - El HTML también embebe un CSV descargable (botón al pie), pero el xlsx es
   el **entregable principal** del archivo limpio.
@@ -327,9 +327,8 @@ with open(chartjs_path, encoding="utf-8") as f:
 
 ### Guardado
 
-- Salida: `<work_folder>/leila_<slug_del_post>_<YYYY-MM-DD>.html`.
-  Si el usuario no dio un título, usá el stem del archivo original en vez de
-  `<slug_del_post>`.
+- Salida: `<work_folder>/leila_<tema>_<YYYY-MM-DD>.html`, donde `<tema>` es el slug del título/tema del post o análisis (ej. `leila_lanzamiento-stella_2026-11-03.html`).
+  Si el usuario no dio un título, usá el stem del archivo original como tema.
 - Primero leé `template.html` con `Read`, hacé los reemplazos en Python, y
   escribí el resultado con `Write`.
 - Al reemplazar `TOPICS_DATA`, `VOLUME_DATA`, `EMOJIS_DATA`, `WORDCLOUD_DATA`,
