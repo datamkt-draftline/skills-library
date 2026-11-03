@@ -94,7 +94,7 @@ El template viene configurado para una escala 1-10 por defecto. Para cada score 
 
 ## Paso 2 — Generar el dashboard HTML
 
-Generar un único archivo `dashboard.html` a partir del **template** en `references/template.html`.
+Generar un único archivo HTML a partir del **template** en `references/template.html`. Nombrar el archivo como `surv-an_{slug_del_título}_{YYYY-MM-DD}.html` (ej. `surv-an_flying-fish_2026-11-03.html`), donde `slug_del_título` es el nombre del producto/encuesta en minúsculas con guiones.
 
 ### Cómo usar el template
 
@@ -151,7 +151,7 @@ Antes de guardar el HTML y llamar `mcp__tas__open_file`, ejecutar este **check d
 ```python
 import re, subprocess, tempfile, os
 
-with open("dashboard.html", encoding="utf-8") as f:
+with open(output_html_path, encoding="utf-8") as f:
     html = f.read()
 
 # 1. No debe quedar ningún {{PLACEHOLDER}} sin reemplazar
