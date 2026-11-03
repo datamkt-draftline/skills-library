@@ -31,7 +31,7 @@ Si el usuario pregunta cómo funciona, pide el template, o quiere saber la estru
 
 1. Identificá el archivo `.xlsx` (viene en `uploads/` o lo menciona el usuario).
 
-2. Ejecutá el generador (sin segundo argumento: el script genera el HTML como `{titulo-slug}-gantt.html` en el mismo directorio del xlsx, usando el `Titulo` de la hoja `Config`):
+2. Ejecutá el generador (sin segundo argumento: el script genera el HTML como `gantt_{titulo-slug}_{YYYY-MM-DD}.html` en el mismo directorio del xlsx, usando el `Titulo` de la hoja `Config` y la fecha de hoy):
    ```bash
    python3 /home/agent/work/2026-09-14_9muktr/.claude/skills/gantt/scripts/generate_gantt.py "<ruta-al-xlsx>"
    ```
