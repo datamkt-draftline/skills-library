@@ -6,6 +6,13 @@ Historial de cambios significativos por skill. Formato: `### X.Y.Z — YYYY-MM-D
 
 ---
 
+## github-updater
+
+### 1.0.0 — 2026-11-03
+- Versión inicial publicada.
+
+---
+
 ## analyze-survey
 
 ### 1.0.0 — 2026-10-21
