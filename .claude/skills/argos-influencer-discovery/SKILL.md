@@ -301,7 +301,7 @@ Si el usuario proporcionó keywords explícitas (modo de búsqueda única), exis
 
 1. Leé `template.html` del propio directorio de la skill con la herramienta `Read`.
 2. Construí los fragmentos de HTML a inyectar (ver placeholders más abajo).
-3. Escribí el archivo final en el work folder actual con `Write`, usando un nombre descriptivo del tipo `argos_discovery_<YYYY-MM-DD>_<HHMM>.html`.
+3. Escribí el archivo final en el work folder actual con `Write`, usando el nombre `argos_{YYYY-MM-DD}.html` (ej. `argos_2026-11-03.html`).
 4. Llamá a `mcp__tas__open_file` con la ruta absoluta del HTML generado.
 5. En el chat, respondé con un párrafo breve que resuma: cantidad de verticales ejecutadas, total de influencers finales, verticales fallidas si las hubo, y confirmación de la generación del archivo. No pegues el JSON del MCP ni listados largos en el chat.
 
