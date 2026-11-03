@@ -9,6 +9,7 @@ Repositorio creado por el equipo de draftLine Data Marketing Argentina para el a
 | analyze-survey | `analyze-survey` | Analiza resultados de una encuesta en xlsx y genera un dashboard HTML interactivo con filtros dinámicos. | action |
 | argos-influencer-discovery | `argos-influencer-discovery` | Descubrimiento de influencers potenciales en Instagram por palabras clave, con revisión reputacional y administración de exclusiones. | action |
 | gantt | `gantt` | Genera un Gantt interactivo en HTML desde un Excel, o entrega el template de Excel si el usuario lo solicita. | action |
+| github-updater | `github-updater` | Sincroniza cambios con el repositorio datamkt-draftline/skills-library: sube archivos, valida el checklist para nuevas skills y mantiene CHANGELOG y README al día. | action |
 | glosario-skills | `glosario-skills` | Genera un HTML con el glosario de las skills disponibles organizadas por los 7 pilares ONE ABI WAY. | action |
 | influencer-audience | `influencer-audience` | Genera una presentación PPTX de audience intelligence para uno o más influencers a partir de datos de CreatorIQ. | action |
 | inversion-abi-dashboard | `inversion-abi-dashboard` | Genera un dashboard HTML interactivo de inversiones ABI 2026 a partir del Excel de inversiones. | action |
