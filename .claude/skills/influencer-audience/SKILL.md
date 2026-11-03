@@ -128,7 +128,9 @@ node .claude/skills/influencer-audience/pptx_report_generator.js \
   <output-pptx>
 ```
 
-Convención de nombre de salida: `<handle-slug>-audience-report-YYYY-MM-DD.pptx` en el working directory del usuario.
+Convención de nombre de salida en el working directory del usuario:
+- Un solo creator: `inf_audience_{handle-slug}_YYYY-MM-DD.pptx` (ej. `inf_audience_zaira-nara_2026-11-03.pptx`).
+- Múltiples creators: `inf_audience_{N}creators_YYYY-MM-DD.pptx` (ej. `inf_audience_3creators_2026-11-03.pptx`), donde `N` es la cantidad de influencers en el deck.
 
 El generador imprime un JSON con `success`, `outputPath`, `slideCount`, `networkSlideCount`.
 
