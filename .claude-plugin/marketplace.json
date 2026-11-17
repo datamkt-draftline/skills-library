@@ -1,0 +1,193 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "draftline-skills-library",
+  "description": "Librería de skills del equipo draftLine Data Marketing Argentina para Treasure AI Studio. Incluye skills de análisis de encuestas, generación de presentaciones, dashboards de inversión, social listening, descubrimiento de influencers y más.",
+  "owner": {
+    "name": "draftLine Data Marketing",
+    "url": "https://github.com/datamkt-draftline"
+  },
+  "plugins": [
+    {
+      "name": "analyze-survey",
+      "description": "Analiza resultados de una encuesta en xlsx y genera un dashboard HTML interactivo con filtros dinámicos.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "analytics",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/analyze-survey",
+        "ref": "analyze-survey/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "argos-influencer-discovery",
+      "description": "Descubrimiento de influencers potenciales en Instagram por palabras clave, con revisión reputacional y administración de exclusiones.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "marketing",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/argos-influencer-discovery",
+        "ref": "argos-influencer-discovery/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "gantt",
+      "description": "Genera un Gantt interactivo (HTML) a partir de un Excel, o entrega el template Excel si el usuario lo solicita.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "productivity",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/gantt",
+        "ref": "gantt/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "github-updater",
+      "description": "Sincroniza cambios con el repositorio datamkt-draftline/skills-library: sube archivos, valida el checklist para nuevas skills y mantiene CHANGELOG y README al día.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "developer-tools",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/github-updater",
+        "ref": "main"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "glosario-skills",
+      "description": "Genera un HTML con el glosario de las skills disponibles organizadas por los 7 pilares ONE ABI WAY.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "productivity",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/glosario-skills",
+        "ref": "glosario-skills/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "influencer-audience",
+      "description": "Genera una presentación PPTX de audience intelligence para uno o más influencers a partir de datos de CreatorIQ.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "marketing",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/influencer-audience",
+        "ref": "influencer-audience/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "inversion-abi-dashboard",
+      "description": "Genera un dashboard HTML interactivo de inversiones ABI 2026 a partir del Excel de inversiones.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "analytics",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/inversion-abi-dashboard",
+        "ref": "inversion-abi-dashboard/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "leila",
+      "description": "Análisis de social listening de comentarios desde xlsx, csv, txt o texto pegado; genera HTML interactivo y archivo limpio descargable.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "analytics",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/leila",
+        "ref": "leila/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "presentacion-bu-las-cbn",
+      "description": "Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería Boliviana Nacional (CBN) Bolivia.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "marketing",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/presentacion-bu-las-cbn",
+        "ref": "presentacion-bu-las-cbn/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "presentacion-bu-las-cervepar",
+      "description": "Genera una presentación PPTX editable con la identidad visual BU LAS + Cervepar Paraguay.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "marketing",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/presentacion-bu-las-cervepar",
+        "ref": "presentacion-bu-las-cervepar/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "presentacion-bu-las-chile",
+      "description": "Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería Chile.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "marketing",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/presentacion-bu-las-chile",
+        "ref": "presentacion-bu-las-chile/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "presentacion-bu-las-cmq",
+      "description": "Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería y Maltería Quilmes Argentina.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "marketing",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/presentacion-bu-las-cmq",
+        "ref": "presentacion-bu-las-cmq/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "presentacion-bu-las-fnc",
+      "description": "Genera una presentación PPTX editable con la identidad visual BU LAS + FNC.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "marketing",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/presentacion-bu-las-fnc",
+        "ref": "presentacion-bu-las-fnc/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    },
+    {
+      "name": "sauron-weekly",
+      "description": "Relevamiento semanal automático de noticias y social listening sobre cerveza, cultura, marcas y fútbol en Argentina.",
+      "author": { "name": "draftLine Data Marketing" },
+      "category": "analytics",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/datamkt-draftline/skills-library.git",
+        "path": ".claude/skills/sauron-weekly",
+        "ref": "sauron-weekly/1.0.0"
+      },
+      "homepage": "https://github.com/datamkt-draftline/skills-library"
+    }
+  ]
+}
