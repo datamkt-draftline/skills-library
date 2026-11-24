@@ -7,7 +7,6 @@ Repositorio creado por el equipo de draftLine Data Marketing Argentina para el a
 | Skill | Carpeta | Propósito | Tipo |
 |-------|---------|-----------|------|
 | analyze-survey | `analyze-survey` | Analiza resultados de una encuesta en xlsx y genera un dashboard HTML interactivo con filtros dinámicos. | action |
-| argos-influencer-discovery | `argos-influencer-discovery` | Descubrimiento de influencers potenciales en Instagram por palabras clave, con revisión reputacional y administración de exclusiones. | action |
 | gantt | `gantt` | Genera un Gantt interactivo en HTML desde un Excel, o entrega el template de Excel si el usuario lo solicita. | action |
 | github-updater | `github-updater` | Sincroniza cambios con el repositorio datamkt-draftline/skills-library: sube archivos, valida el checklist para nuevas skills y mantiene CHANGELOG y README al día. | action |
 | glosario-skills | `glosario-skills` | Genera un HTML con el glosario de las skills disponibles organizadas por los 7 pilares ONE ABI WAY. | action |
@@ -19,7 +18,6 @@ Repositorio creado por el equipo de draftLine Data Marketing Argentina para el a
 | presentacion-bu-las-chile | `presentacion-bu-las-chile` | Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería Chile. | action |
 | presentacion-bu-las-cmq | `presentacion-bu-las-cmq` | Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería y Maltería Quilmes Argentina. | action |
 | presentacion-bu-las-fnc | `presentacion-bu-las-fnc` | Genera una presentación PPTX editable con la identidad visual BU LAS + FNC. | action |
-| sauron-weekly | `sauron-weekly` | Relevamiento semanal automático de noticias y social listening sobre cerveza, cultura, marcas y fútbol en Argentina. Actualiza el dashboard de tres slides. | action |
 
 ## Convenciones
 

@@ -20,13 +20,6 @@ Historial de cambios significativos por skill. Formato: `### X.Y.Z — YYYY-MM-D
 
 ---
 
-## argos-influencer-discovery
-
-### 1.0.0 — 2026-10-28
-- Versión inicial publicada.
-
----
-
 ## gantt
 
 ### 1.0.0 — 2026-10-16
@@ -110,11 +103,4 @@ Historial de cambios significativos por skill. Formato: `### X.Y.Z — YYYY-MM-D
 ## presentacion-bu-las-fnc
 
 ### 1.0.0 — 2026-10-30
-- Versión inicial publicada.
-
----
-
-## sauron-weekly
-
-### 1.0.0 — 2026-10-28
 - Versión inicial publicada.
