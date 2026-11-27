@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Content Investment & Impact Tracker</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+:root{--bg-main:#0b1020;--bg-card:#12182a;--bg-filter:#171e31;--border:#2a344b;--text-main:#f8fafc;--text-sec:#94a3b8;--accent:#3b82f6;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg-main);color:var(--text-main);font-family:"Inter","Helvetica Neue",Arial,sans-serif;min-height:100vh;}
+.header{padding:18px 24px 14px;border-bottom:1px solid var(--border);text-align:center;}
+.header h1{font-size:1.75rem;font-weight:700;letter-spacing:.01em;}
+.filters-section{background:var(--bg-filter);border-bottom:1px solid var(--border);padding:12px 24px;}
+.filters-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;}
+.fg{display:flex;flex-direction:column;gap:3px;min-width:120px;flex:1;}
+.fg label{font-size:.67rem;color:var(--text-sec);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+.fg select,.ms-ctrl{background:var(--bg-card);color:var(--text-main);border:1px solid var(--border);border-radius:6px;padding:5px 26px 5px 9px;font-size:.8rem;cursor:pointer;outline:none;}
+.fg select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;width:100%;}
+.ms-ctrl{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;width:100%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.ms-wrap{position:relative;width:100%;}
+.ms-dropdown{display:none;position:absolute;top:calc(100% + 3px);left:0;min-width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;z-index:999;padding:4px 0;box-shadow:0 4px 16px rgba(0,0,0,.5);max-height:220px;overflow-y:auto;}
+.ms-dropdown.open{display:block;}
+.ms-opt{display:flex;align-items:center;gap:7px;padding:5px 11px;font-size:.8rem;cursor:pointer;white-space:nowrap;}
+.ms-opt:hover{background:rgba(59,130,246,.12);}
+.ms-opt input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.btn-reset{background:transparent;color:var(--text-sec);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.78rem;cursor:pointer;white-space:nowrap;transition:all .15s;align-self:flex-end;}
+.btn-reset:hover{background:var(--bg-card);color:var(--text-main);border-color:var(--accent);}
+.btn-reset.has-filters{color:#f8fafc;border-color:var(--accent);background:rgba(59,130,246,.15);}
+.active-filters-row{padding:6px 24px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;border-bottom:1px solid var(--border);min-height:0;}
+.active-filters-row:empty{display:none;}
+.af-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:20px;padding:2px 10px 2px 9px;font-size:.7rem;color:#93c5fd;}
+.af-badge button{background:none;border:none;color:#93c5fd;cursor:pointer;font-size:.75rem;padding:0;line-height:1;opacity:.7;}
+.af-badge button:hover{opacity:1;}
+.kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:9px 15px;flex:1;min-width:115px;position:relative;}
+.brand-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.tab-panel.active{display:block;animation:fadeIn .18s ease;}
+.er-warn{font-size:.65rem;color:#f59e0b;padding:1px 0 0 2px;}
+.kpi-section{padding:10px 24px;display:flex;gap:9px;flex-wrap:wrap;}
+
+.kpi-label{font-size:.65rem;color:var(--text-sec);text-transform:uppercase;letter-spacing:.07em;font-weight:600;}
+.kpi-value{font-size:1.25rem;font-weight:700;margin-top:2px;}
+.kpi-sub{font-size:.67rem;color:var(--text-sec);margin-top:1px;}
+.tabs-section{padding:0 24px;border-bottom:1px solid var(--border);}
+.tabs-nav{display:flex;}
+.tab-btn{background:transparent;border:none;border-bottom:3px solid transparent;color:var(--text-sec);padding:10px 20px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s;}
+.tab-btn:hover{color:var(--text-main);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.matrix-section{padding:13px 24px;}
+.tab-panel{display:none;}
+.matrix-container{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:4px;}
+.matrix-title{font-size:.76rem;color:var(--text-sec);padding:8px 14px 2px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.matrix-plot{width:100%;height:480px;}
+.no-data{display:flex;align-items:center;justify-content:center;height:300px;color:var(--text-sec);font-size:.88rem;}
+.event-count{font-size:.7rem;color:var(--text-sec);padding:3px 14px 8px;}
+.footer-row{display:flex;justify-content:space-between;align-items:center;padding:4px 14px 10px;gap:12px;}
+.footer-row .event-count{padding:0;}
+.sapito-note{font-size:.68rem;color:#f59e0b;padding:2px 14px 6px;}
+.matrix-actions{display:flex;justify-content:flex-end;padding:4px 14px 10px;}
+.footer-row .matrix-actions{padding:0;}
+.btn-download{background:transparent;color:var(--text-sec);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;cursor:pointer;transition:all .15s;}
+.btn-download:hover{background:var(--bg-filter);color:var(--text-main);border-color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Content Investment &amp; Impact Tracker</h1>
+</div>
+<div class="filters-section">
+  <div class="filters-row">
+    <div class="fg"><label>Marca</label><select id="f-marca" onchange="onFilterChange()"></select></div>
+    <div class="fg"><label>Canal principal</label><select id="f-canal" onchange="onFilterChange()"></select></div>
+    <div class="fg"><label>Campa&ntilde;a</label><select id="f-campana" onchange="onFilterChange()"></select></div>
+    <div class="fg"><label>Objetivo principal</label><select id="f-objetivo" onchange="onFilterChange()"></select></div>
+    <div class="fg"><label>Estado</label><select id="f-estado" onchange="onFilterChange()"></select></div>
+    <div class="fg"><label>Tipo de contenido</label><select id="f-tipo-contenido" onchange="onFilterChange()"></select></div>
+    <div class="fg" style="min-width:145px">
+      <label>Tipo de inversi&oacute;n</label>
+      <div class="ms-wrap" id="ms-inv-wrap">
+        <button class="ms-ctrl" id="ms-inv-ctrl" onclick="toggleMs('inv')" type="button">Todos</button>
+        <div class="ms-dropdown" id="ms-inv-opts">
+          <label class="ms-opt"><input type="checkbox" value="Todos" checked onchange="onMsInv(this)"><span>Todos</span></label>
+          <label class="ms-opt"><input type="checkbox" value="Activacion" onchange="onMsInv(this)"><span>Activaci&oacute;n</span></label>
+          <label class="ms-opt"><input type="checkbox" value="Producto" onchange="onMsInv(this)"><span>Producto</span></label>
+          <label class="ms-opt"><input type="checkbox" value="Produccion" onchange="onMsInv(this)"><span>Producci&oacute;n</span></label>
+          <label class="ms-opt"><input type="checkbox" value="Sponsoreo" onchange="onMsInv(this)"><span>Sponsoreo</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="fg" style="min-width:180px;flex:2">
+      <label>Nombre del contenido</label>
+      <div class="ms-wrap" id="ms-nc-wrap">
+        <button class="ms-ctrl" id="ms-nc-ctrl" onclick="toggleMs('nc')" type="button">Todos</button>
+        <div class="ms-dropdown" id="ms-nc-opts"></div>
+      </div>
+    </div>
+    <button class="btn-reset" id="btn-reset" onclick="resetFilters()">&#8635; Restablecer</button>
+  </div>
+</div>
+<div class="kpi-section">
+  <div class="kpi-card"><div class="kpi-label">Inversi&oacute;n Total</div><div class="kpi-value" id="kpi-inversion">&#8212;</div><div class="kpi-sub" id="kpi-inversion-sub">&nbsp;</div></div>
+  <div class="kpi-card"><div class="kpi-label">Impresiones</div><div class="kpi-value" id="kpi-impresiones">&#8212;</div><div class="kpi-sub" id="kpi-impresiones-sub">&nbsp;</div></div>
+  <div class="kpi-card"><div class="kpi-label">Interacciones</div><div class="kpi-value" id="kpi-interacciones">&#8212;</div><div class="kpi-sub" id="kpi-interacciones-sub">&nbsp;</div></div>
+  <div class="kpi-card"><div class="kpi-label">Views</div><div class="kpi-value" id="kpi-views">&#8212;</div><div class="kpi-sub" id="kpi-views-sub">&nbsp;</div></div>
+  <div class="kpi-card"><div class="kpi-label">Reach</div><div class="kpi-value" id="kpi-reach">&#8212;</div><div class="kpi-sub" id="kpi-reach-sub">&nbsp;</div></div>
+</div>
+<div class="tabs-section">
+  <div class="tabs-nav">
+    <button class="tab-btn active" data-tab="m1" onclick="switchTab('m1')">Engagement</button>
+    <button class="tab-btn" data-tab="m2" onclick="switchTab('m2')">Reach</button>
+    <button class="tab-btn" data-tab="m3" onclick="switchTab('m3')">Video</button>
+  </div>
+</div>
+<div class="matrix-section">
+  <div id="panel-m1" class="tab-panel active"><div class="matrix-container">
+    <div class="matrix-title">ER% vs CPI &middot; Tama&ntilde;o = Interacciones</div>
+    <div id="matrix-m1" class="matrix-plot"></div>
+    <div class="footer-row"><div class="event-count" id="count-m1"></div><div class="matrix-actions"><button class="btn-download" onclick="downloadPng('m1')">&#8595; Descargar PNG</button></div></div>
+  </div></div>
+  <div id="panel-m2" class="tab-panel"><div class="matrix-container">
+    <div class="matrix-title">Reach/UU vs CPM &middot; Tama&ntilde;o = Impresiones</div>
+    <div id="matrix-m2" class="matrix-plot"></div>
+    <div class="sapito-note" id="sapito-note" style="display:none">&#9888; Sapito no aparece en Reach Consolidado (figura como &quot;Campeonato Sapito&quot;). Ajustar nombre en el Excel para incluirlo.</div>
+    <div class="footer-row"><div class="event-count" id="count-m2"></div><div class="matrix-actions"><button class="btn-download" onclick="downloadPng('m2')">&#8595; Descargar PNG</button></div></div>
+  </div></div>
+  <div id="panel-m3" class="tab-panel"><div class="matrix-container">
+    <div class="matrix-title">FVTR vs CPV &middot; Tama&ntilde;o = Views</div>
+    <div id="matrix-m3" class="matrix-plot"></div>
+    <div class="footer-row"><div class="event-count" id="count-m3"></div><div class="matrix-actions"><button class="btn-download" onclick="downloadPng('m3')">&#8595; Descargar PNG</button></div></div>
+  </div></div>
+</div>
+<script>
+
+/* DATA_START */
+const dashboardData = %%CARGA_CONTENIDO_JSON%%;
+/* DATA_END */
+/* REACH_CONSOLIDADO_START */
+const reachConsolidadoData = %%REACH_CONSOLIDADO_JSON%%;
+/* REACH_CONSOLIDADO_END */
+
+const BRAND_COLORS={"Quilmes":"#0274ad","Patagonia":"#47182a","Corona":"#f9c650","Andes Origen":"#6b3038","Stella Artois":"#da0416","Brahma":"#fcb106","Michelob":"#384c7c","Budweiser":"#e3021c"};
+const NEUTRAL="#94A3B8";
+
+// ─── RC lookup by campana ────────────────────────────────────────────────────
+const rcL={};
+reachConsolidadoData.forEach(function(r){rcL[r.campana]=r.reach;});
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let currentTab="m1",initialized={m1:false,m2:false,m3:false},storedPoints={m1:[],m2:[],m3:[]};
+let selInv=["Todos"],selNC=["Todos"];
+let flt={marca:"Todos",canal:"Todos",campana:"Todos",objetivo:"Todos",estado:"Todos",tipoContenido:"Todos"};
+
+// ─── Close dropdowns on outside click ─────────────────────────────────────────
+document.addEventListener("click",function(e){
+  ["inv","nc"].forEach(function(id){
+    var w=document.getElementById("ms-"+id+"-wrap");
+    if(w&&!w.contains(e.target)) document.getElementById("ms-"+id+"-opts").classList.remove("open");
+  });
+});
+
+// ─── Multiselect: Tipo de inversión ───────────────────────────────────────────
+function toggleMs(id){
+  var el=document.getElementById("ms-"+id+"-opts");
+  el.classList.toggle("open");
+  var o=id==="inv"?"nc":"inv";
+  document.getElementById("ms-"+o+"-opts").classList.remove("open");
+}
+function onMsInv(cb){
+  if(cb.value==="Todos"){if(cb.checked){selInv=["Todos"];syncInvCbs();}else{cb.checked=true;}}
+  else{
+    if(cb.checked){selInv=selInv.filter(function(x){return x!=="Todos";});if(!selInv.includes(cb.value))selInv.push(cb.value);}
+    else{selInv=selInv.filter(function(x){return x!==cb.value;});if(!selInv.length)selInv=["Todos"];}
+    syncInvCbs();
+  }
+  updInvLabel(); onFilterChange();
+}
+function syncInvCbs(){document.querySelectorAll("#ms-inv-opts input").forEach(function(cb){cb.checked=selInv.includes(cb.value);});}
+function updInvLabel(){
+  var lbl=document.getElementById("ms-inv-ctrl");
+  if(selInv.includes("Todos")){lbl.textContent="Todos";return;}
+  var nm={Activacion:"Activación",Producto:"Producto",Produccion:"Producción",Sponsoreo:"Sponsoreo"};
+  var ns=selInv.map(function(t){return nm[t]||t;});
+  lbl.textContent=ns.length<=2?ns.join(", "):ns.length+" seleccionados";
+}
+
+// ─── Multiselect: Nombre del contenido ────────────────────────────────────────
+function buildNcOpts(){
+  var pool=dashboardData;
+  if(flt.marca!=="Todos") pool=pool.filter(function(r){return r.marca===flt.marca;});
+  if(flt.campana!=="Todos") pool=pool.filter(function(r){return r.campana===flt.campana;});
+  var names=[...new Set(pool.map(function(r){return r.nombreContenido;}).filter(Boolean))].sort();
+  var valid=selNC.filter(function(x){return x==="Todos"||names.includes(x);});
+  selNC=valid.length&&!valid.every(function(x){return x==="Todos";})?valid.filter(function(x){return x!=="Todos";}):["Todos"];
+  var cont=document.getElementById("ms-nc-opts");
+  cont.innerHTML='<label class="ms-opt"><input type="checkbox" value="Todos" onchange="onMsNC(this)"><span>Todos</span></label>'+
+    names.map(function(n){return '<label class="ms-opt"><input type="checkbox" value="'+eH(n)+'" onchange="onMsNC(this)"><span>'+eH(n)+'</span></label>';}).join("");
+  syncNcCbs(); updNcLabel();
+}
+function onMsNC(cb){
+  if(cb.value==="Todos"){if(cb.checked){selNC=["Todos"];syncNcCbs();}else{cb.checked=true;}}
+  else{
+    if(cb.checked){selNC=selNC.filter(function(x){return x!=="Todos";});if(!selNC.includes(cb.value))selNC.push(cb.value);}
+    else{selNC=selNC.filter(function(x){return x!==cb.value;});if(!selNC.length)selNC=["Todos"];}
+    syncNcCbs();
+  }
+  updNcLabel(); onFilterChange();
+}
+function syncNcCbs(){document.querySelectorAll("#ms-nc-opts input").forEach(function(cb){cb.checked=selNC.includes(cb.value)||cb.value==="Todos"&&selNC.includes("Todos");});}
+function updNcLabel(){
+  var lbl=document.getElementById("ms-nc-ctrl");
+  if(selNC.includes("Todos")){lbl.textContent="Todos";return;}
+  lbl.textContent=selNC.length<=2?selNC.join(", "):selNC.length+" seleccionados";
+}
+
+// ─── Filter application ────────────────────────────────────────────────────────
+function onFilterChange(){
+  flt.marca=document.getElementById("f-marca").value;
+  flt.canal=document.getElementById("f-canal").value;
+  flt.objetivo=document.getElementById("f-objetivo").value;
+  flt.estado=document.getElementById("f-estado").value;
+  flt.tipoContenido=document.getElementById("f-tipo-contenido").value;
+  cascadeCampana();
+  flt.campana=document.getElementById("f-campana").value;
+  buildNcOpts(); update();
+}
+function resetFilters(){
+  flt={marca:"Todos",canal:"Todos",campana:"Todos",objetivo:"Todos",estado:"Todos",tipoContenido:"Todos"};
+  ["f-marca","f-canal","f-objetivo","f-estado","f-tipo-contenido"].forEach(function(id){
+    document.getElementById(id).value="Todos";
+  });
+  cascadeCampana(); document.getElementById("f-campana").value="Todos"; flt.campana="Todos";
+  selInv=["Todos"]; syncInvCbs(); updInvLabel();
+  selNC=["Todos"]; buildNcOpts(); update();
+}
+function applyFilters(data){
+  return data.filter(function(r){
+    if(flt.marca!=="Todos"&&r.marca!==flt.marca) return false;
+    if(flt.canal!=="Todos"&&r.canalPrincipal!==flt.canal) return false;
+    if(flt.campana!=="Todos"&&r.campana!==flt.campana) return false;
+    if(flt.objetivo!=="Todos"&&r.objetivoPrincipal!==flt.objetivo) return false;
+    if(flt.estado!=="Todos"&&r.estado!==flt.estado) return false;
+    if(flt.tipoContenido!=="Todos"&&r.tipoContenido!==flt.tipoContenido) return false;
+    if(!selNC.includes("Todos")&&!selNC.includes(r.nombreContenido)) return false;
+    return true;
+  });
+}
+
+// ─── Granularity mode ─────────────────────────────────────────────────────────
+// Modo contenido: campana specific + marca = Todos
+function isMC(){return flt.campana!=="Todos"&&flt.marca==="Todos";}
+function evtKey(r){return isMC()?r.marca+"||"+r.campana+"||"+r.nombreContenido:r.marca+"||"+r.campana;}
+function evtLbl(r){return isMC()?(r.nombreContenido||r.campana):r.campana;}
+
+// ─── Investment helper ─────────────────────────────────────────────────────────
+function getInv(r){
+  if(selInv.includes("Todos")) return r.inversionTotal||0;
+  var t=0;
+  if(selInv.includes("Activacion")) t+=r.activacion||0;
+  if(selInv.includes("Producto"))   t+=r.producto||0;
+  if(selInv.includes("Produccion")) t+=r.produccion||0;
+  if(selInv.includes("Sponsoreo"))  t+=r.sponsoreo||0;
+  return t;
+}
+function invLabel(){
+  if(selInv.includes("Todos")) return "Inversión total";
+  var nm={Activacion:"Activación",Producto:"Producto",Produccion:"Producción",Sponsoreo:"Sponsoreo"};
+  return selInv.map(function(t){return nm[t]||t;}).join(" + ");
+}
+
+// ─── Normalise unit strings ────────────────────────────────────────────────────
+function normUnit(s){
+  if(!s) return "";
+  return s.trim().toLowerCase()
+    .replace(/á/g,"a").replace(/é/g,"e").replace(/í/g,"i").replace(/ó/g,"o").replace(/ú/g,"u")
+    .replace(/\s+/g," ");
+}
+function normObj(s){
+  if(!s) return "";
+  return s.trim().toLowerCase()
+    .replace(/á/g,"a").replace(/é/g,"e").replace(/í/g,"i").replace(/ó/g,"o").replace(/ú/g,"u")
+    .replace(/\s+/g," ");
+}
+
+// ─── Group rows by event ───────────────────────────────────────────────────────
+function groupByEvent(filteredRows){
+  var map={};
+  filteredRows.forEach(function(r){
+    var k=evtKey(r);
+    if(!map[k]) map[k]={
+      key:k, lbl:evtLbl(r), marca:r.marca, campana:r.campana,
+      nombreContenido:r.nombreContenido, canal:r.canalPrincipal,
+      objetivo:r.objetivoPrincipal, estado:r.estado, tipoContenido:r.tipoContenido,
+      rows:[]
+    };
+    map[k].rows.push(r);
+  });
+  return Object.values(map);
+}
+
+// ─── Metric aggregators ────────────────────────────────────────────────────────
+function aggInv(rows){return rows.reduce(function(s,r){return s+getInv(r);},0);}
+
+function aggKpi(rows,unitMatch){
+  // sum valorKpi where normUnit(unidadKpi) matches
+  return rows.filter(function(r){return normUnit(r.unidadKpi)===unitMatch&&r.valorKpi>0;})
+             .reduce(function(s,r){return s+(r.valorKpi||0);},0);
+}
+
+function aggCpi(rows){
+  var inv=aggInv(rows);
+  var inter=aggKpi(rows,"interacciones");
+  return inter>0?inv/inter:null;
+}
+
+function aggCpm(rows){
+  // CPM from Reach/awareness + Impresiones rows
+  var rRows=rows.filter(function(r){
+    return normObj(r.objetivoPrincipal).indexOf("reach")>=0&&normUnit(r.unidadKpi)==="impresiones";
+  });
+  if(!rRows.length) return {cpm:null,imp:0};
+  var imp=rRows.reduce(function(s,r){return s+(r.valorKpi||0);},0);
+  var inv=rRows.reduce(function(s,r){return s+getInv(r);},0);
+  return {cpm:imp>0?inv/imp*1000:null, imp:imp};
+}
+
+function aggCpv(rows){
+  var inv=aggInv(rows);
+  var views=aggKpi(rows,"views");
+  return views>0?inv/views:null;
+}
+
+function aggEr(rows){
+  // weighted average of er by valorKpi, only rows where er > 0
+  var valid=rows.filter(function(r){return r.er&&r.er>0&&r.valorKpi&&r.valorKpi>0;});
+  if(!valid.length) return null;
+  var num=valid.reduce(function(s,r){return s+r.er*r.valorKpi;},0);
+  var den=valid.reduce(function(s,r){return s+r.valorKpi;},0);
+  return den>0?num/den*100:null; // return as %
+}
+
+function aggFvtr(rows){
+  // arithmetic mean of valid fvtr values (>0, non-null)
+  var valid=rows.filter(function(r){return r.fvtr!=null&&!isNaN(r.fvtr)&&r.fvtr>0;});
+  if(!valid.length) return null;
+  return valid.reduce(function(s,r){return s+r.fvtr;},0)/valid.length*100; // return as %
+}
+
+// ─── Format helpers ────────────────────────────────────────────────────────────
+function fmt(n,dec){
+  if(n==null||isNaN(n)) return "—";
+  return n.toLocaleString("es-AR",{minimumFractionDigits:dec||0,maximumFractionDigits:dec||0});
+}
+function fmtM(n){
+  if(n==null||isNaN(n)) return "—";
+  if(n>=1e9) return "$"+fmt(n/1e9,1)+"B";
+  if(n>=1e6) return "$"+fmt(n/1e6,1)+"M";
+  if(n>=1e3) return "$"+fmt(n/1e3,1)+"K";
+  return "$"+fmt(n,0);
+}
+function fmtBig(n){
+  if(n==null||isNaN(n)) return "—";
+  if(n>=1e9) return fmt(n/1e9,1)+"B";
+  if(n>=1e6) return fmt(n/1e6,1)+"M";
+  if(n>=1e3) return fmt(n/1e3,1)+"K";
+  return fmt(n,0);
+}
+function fmtPct(n){return n==null||isNaN(n)?"—":fmt(n,2)+"%";}
+function eH(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"):"—";}
+
+// ─── Quadrant ─────────────────────────────────────────────────────────────────
+function quadrant(x,y,rx,ry){
+  if(x==null||y==null||rx==null||ry==null) return "—";
+  var hi_x=x>=rx, lo_y=y<ry;
+  if(hi_x&&lo_y)  return "Alta eficiencia (alto X, bajo Y)";
+  if(!hi_x&&lo_y) return "Bajo alcance, buen costo (bajo X, bajo Y)";
+  if(hi_x&&!lo_y) return "Alto alcance, alto costo (alto X, alto Y)";
+  return "Bajo rendimiento (bajo X, alto Y)";
+}
+
+// ─── Plotly config ────────────────────────────────────────────────────────────
+var PLOT_LAYOUT_BASE={
+  paper_bgcolor:"#12182a",plot_bgcolor:"#12182a",
+  font:{color:"#f8fafc",size:11,family:'"Inter","Helvetica Neue",Arial,sans-serif'},
+  margin:{l:80,r:30,t:15,b:70},
+  xaxis:{gridcolor:"#273247",zerolinecolor:"#2a344b",automargin:false,title:{standoff:12,font:{family:'"Inter","Helvetica Neue",Arial,sans-serif',size:14,color:"#f8fafc"}},tickfont:{family:'"Inter","Helvetica Neue",Arial,sans-serif',size:12,color:"#f8fafc"}},
+  yaxis:{gridcolor:"#273247",zerolinecolor:"#2a344b",automargin:false,title:{standoff:12,font:{family:'"Inter","Helvetica Neue",Arial,sans-serif',size:14,color:"#f8fafc"}},tickfont:{family:'"Inter","Helvetica Neue",Arial,sans-serif',size:12,color:"#f8fafc"}},
+  showlegend:true,
+  legend:{bgcolor:"rgba(18,24,42,.7)",bordercolor:"#2a344b",borderwidth:1,
+          font:{size:10,family:'"Inter","Helvetica Neue",Arial,sans-serif'},x:1.01,y:1,xanchor:"left"},
+  hovermode:"closest"
+};
+var PLOT_CONFIG={displayModeBar:false,displaylogo:false};
+function downloadPng(tab){
+  Plotly.downloadImage("matrix-"+tab,{format:"png",filename:"content_tracker_"+tab,width:1400,height:800,scale:2});
+}
+
+// ─── Build matrix points ───────────────────────────────────────────────────────
+function buildPoints(matrix, events){
+  var pts=[];
+  events.forEach(function(evt){
+    var v=evt.rows;
+    var inv=aggInv(v);
+    var color=BRAND_COLORS[evt.marca]||NEUTRAL;
+    var base={
+      key:evt.key, lbl:evt.lbl, marca:evt.marca, campana:evt.campana,
+      canal:evt.canal, objetivo:evt.objetivo, estado:evt.estado,
+      tipoContenido:evt.tipoContenido,
+      inv:inv, color:color, nRows:v.length,
+      invLabel:invLabel()
+    };
+
+    if(matrix==="m1"){
+      var er=aggEr(v);
+      var cpi=aggCpi(v);
+      var inter=aggKpi(v,"interacciones");
+      if(er==null||cpi==null||inter<=0) return;
+      pts.push(Object.assign({},base,{x:er,y:cpi,size:inter,
+        xLabel:"ER%",yLabel:"CPI",sizeLabel:"Interacciones",
+        erWarn:er>100}));
+    }
+    else if(matrix==="m2"){
+      var reach=rcL[evt.campana]||null;
+      if(reach==null) return;
+      var cm=aggCpm(v);
+      if(cm.cpm==null) return;
+      pts.push(Object.assign({},base,{x:reach,y:cm.cpm,size:cm.imp,
+        xLabel:"Reach/UU",yLabel:"CPM",sizeLabel:"Impresiones"}));
+    }
+    else if(matrix==="m3"){
+      var fv=aggFvtr(v);
+      var cpv=aggCpv(v);
+      var views=aggKpi(v,"views");
+      if(fv==null||cpv==null||views<=0) return;
+      pts.push(Object.assign({},base,{x:fv,y:cpv,size:views,
+        xLabel:"FVTR",yLabel:"CPV",sizeLabel:"Views"}));
+    }
+  });
+  return pts;
+}
+
+// ─── Render matrix ────────────────────────────────────────────────────────────
+function renderMatrix(tab){
+  var pts=storedPoints[tab];
+  var divId="matrix-"+tab;
+  var countId="count-"+tab;
+
+  if(!pts||!pts.length){
+    if(initialized[tab]) Plotly.purge(divId);
+    document.getElementById(divId).innerHTML='<div class="no-data">No existen eventos para la combinaci&oacute;n de filtros seleccionada.</div>';
+    document.getElementById(countId).textContent="";
+    initialized[tab]=false;
+    if(tab==="m2") document.getElementById("sapito-note").style.display="none";
+    return;
+  }
+
+  // benchmarks
+  var maxX=Math.max.apply(null,pts.map(function(p){return p.x;}));
+  var maxY=Math.max.apply(null,pts.map(function(p){return p.y;}));
+  var refX=maxX/2, refY=maxY/2;
+
+  // bubble size scaling (sqrt)
+  var maxSize=Math.max.apply(null,pts.map(function(p){return p.size||0;}));
+  var scalePx=function(s){return maxSize>0?8+Math.sqrt((s||0)/maxSize)*44:15;};
+
+  // group by marca for traces
+  var byMarca={};
+  pts.forEach(function(p){
+    if(!byMarca[p.marca]) byMarca[p.marca]=[];
+    byMarca[p.marca].push(p);
+  });
+
+  var traces=[];
+  Object.keys(byMarca).forEach(function(marca){
+    var mp=byMarca[marca];
+    var color=BRAND_COLORS[marca]||NEUTRAL;
+    // determine border for dark/light colors
+    var border="#ffffff";
+
+    traces.push({
+      type:"scatter",name:marca,
+      x:mp.map(function(p){return p.x;}),
+      y:mp.map(function(p){return p.y;}),
+      mode:"markers+text",
+      text:mp.map(function(p){return p.lbl;}),
+      textposition:"top center",
+      textfont:{size:9,color:"#f8fafc"},
+      marker:{
+        size:mp.map(function(p){return scalePx(p.size);}),
+        color:color,
+        opacity:0.88,
+        line:{color:mp.map(function(p){return p.erWarn?"#f59e0b":border;}),width:mp.map(function(p){return p.erWarn?3:1.5;})}
+      },
+      hoverinfo:"text",
+      hoverlabel:{
+        bgcolor:"#0f1526",
+        bordercolor:color,
+        font:{color:"#f8fafc",size:11,family:'"Inter","Helvetica Neue",Arial,sans-serif'},
+        align:"left",
+        namelength:-1
+      },
+      hovertext:mp.map(function(p){
+        var q=quadrant(p.x,p.y,refX,refY);
+        var sep='<span style="color:#2a344b">━━━━━━━━━━━━━━━</span>';
+        var muted=function(t){return '<span style="color:#94a3b8">'+t+'</span>';};
+        var val=function(t){return '<span style="color:#f8fafc"><b>'+t+'</b></span>';};
+        var header='<span style="font-size:13px;color:'+color+'"><b>'+eH(p.lbl)+'</b></span>';
+        var sub=muted(eH(p.marca)+' · '+eH(p.campana));
+        var xFmt=(p.xLabel==="ER%"||p.xLabel==="FVTR")?fmtPct(p.x):fmtBig(p.x);
+        var refXFmt=(p.xLabel==="ER%"||p.xLabel==="FVTR")?fmtPct(refX):fmtBig(refX);
+        var parts=[
+          header,
+          sub,
+          sep,
+          (p.pais?muted("País:")+" "+eH(p.pais)+"<br>":"")+""+muted("Canal:")+" "+eH(p.canal||"—"),
+          muted("Objetivo:")+" "+eH(p.objetivo||"—"),
+          muted("Tipo:")+" "+eH(p.tipoContenido||"—")+"  "+muted("· Estado:")+" "+eH(p.estado||"—"),
+          sep,
+          muted("Inversión ("+eH(p.invLabel)+"):")+" "+val(fmtM(p.inv)),
+          muted(p.xLabel+":")+" "+val(xFmt)+"  "+muted("ref "+refXFmt),
+          muted(p.yLabel+":")+" "+val(fmtM(p.y))+"  "+muted("ref "+fmtM(refY)),
+          muted(p.sizeLabel+":")+" "+val(fmtBig(p.size)),
+          sep,
+          muted("Cuadrante:")+" "+eH(q),
+          muted(p.nRows+" fila"+(p.nRows!==1?"s":""))
+        ];
+        return parts.join("<br>");
+      })
+    });
+  });
+
+  // benchmark lines
+  var benchX={type:"line",xref:"x",yref:"paper",x0:refX,x1:refX,y0:0,y1:1,
+    line:{color:"rgba(148,163,184,.35)",width:1,dash:"dot"}};
+  var benchY={type:"line",xref:"paper",yref:"y",x0:0,x1:1,y0:refY,y1:refY,
+    line:{color:"rgba(148,163,184,.35)",width:1,dash:"dot"}};
+
+  var axLabels={
+    m1:{x:"ER%",y:"CPI ($)"},
+    m2:{x:"Reach / UU",y:"CPM ($)"},
+    m3:{x:"FVTR (%)",y:"CPV ($)"}
+  };
+
+  var titleFont={family:'"Inter","Helvetica Neue",Arial,sans-serif',size:14,color:"#f8fafc"};
+  var layout=Object.assign({},PLOT_LAYOUT_BASE,{
+    shapes:[benchX,benchY],
+    xaxis:Object.assign({},PLOT_LAYOUT_BASE.xaxis,{title:{text:axLabels[tab].x,standoff:12,font:titleFont}}),
+    yaxis:Object.assign({},PLOT_LAYOUT_BASE.yaxis,{title:{text:axLabels[tab].y,standoff:12,font:titleFont}})
+  });
+
+  if(!initialized[tab]){
+    Plotly.newPlot(divId,traces,layout,PLOT_CONFIG);
+    initialized[tab]=true;
+  } else {
+    Plotly.react(divId,traces,layout,PLOT_CONFIG);
+  }
+
+  var warnCount=pts.filter(function(p){return p.erWarn;}).length;
+  document.getElementById(countId).innerHTML=pts.length+" evento"+(pts.length!==1?"s":"")+" visibles"+(warnCount?" &nbsp;<span class='er-warn'>⚠ "+warnCount+" con ER% > 100 (revisar datos)</span>":"");
+
+  // Sapito note for m2
+  if(tab==="m2"){
+    var hasSapito=storedPoints["m2"].length < (function(){
+      // Check if Sapito is in events but not in m2 pts
+      var filtered=applyFilters(dashboardData);
+      var evts=groupByEvent(filtered);
+      return evts.filter(function(e){return e.campana==="Sapito";}).length>0;
+    })();
+    // simpler: show note if Sapito campana is visible in filtered data
+    var filtered=applyFilters(dashboardData);
+    var hasSapitoInData=filtered.some(function(r){return r.campana==="Sapito";});
+    document.getElementById("sapito-note").style.display=hasSapitoInData?"block":"none";
+  }
+}
+
+// ─── Switch tab ───────────────────────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll(".tab-panel").forEach(function(p){p.classList.remove("active");});
+  document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("active");});
+  document.getElementById("panel-"+tab).classList.add("active");
+  document.querySelector("[data-tab='"+tab+"']").classList.add("active");
+  currentTab=tab;
+  requestAnimationFrame(function(){renderMatrix(tab);});
+}
+
+// ─── KPI cards ────────────────────────────────────────────────────────────────
+function updateKpis(filtered){
+  var inv=filtered.reduce(function(s,r){return s+getInv(r);},0);
+  document.getElementById("kpi-inversion").textContent=fmtM(inv);
+  document.getElementById("kpi-inversion-sub").textContent=invLabel();
+
+  var obj=normObj(flt.objetivo);
+  // Volume KPI mapping
+  var showImp   = obj==="todos"||obj.indexOf("reach")>=0;
+  var showInter = obj==="todos"||obj.indexOf("engagement")>=0;
+  var showViews = obj==="todos"||obj.indexOf("video")>=0;
+
+  var imp=aggKpi(filtered,"impresiones");
+  document.getElementById("kpi-impresiones").textContent=showImp?fmtBig(imp):"—";
+  document.getElementById("kpi-impresiones-sub").textContent=showImp?"total":"\u00a0";
+
+  var inter=aggKpi(filtered,"interacciones");
+  document.getElementById("kpi-interacciones").textContent=showInter?fmtBig(inter):"—";
+  document.getElementById("kpi-interacciones-sub").textContent=showInter?"total":"\u00a0";
+
+  var views=aggKpi(filtered,"views");
+  document.getElementById("kpi-views").textContent=showViews?fmtBig(views):"—";
+  document.getElementById("kpi-views-sub").textContent=showViews?"total":"\u00a0";
+
+  // Reach: show only when campana!=Todos AND marca==Todos
+  var showReach=flt.campana!=="Todos"&&flt.marca==="Todos";
+  if(showReach){
+    // sum unique reach from RC for visible campanas
+    var campanas=new Set(filtered.map(function(r){return r.campana;}));
+    var totalReach=0; var counted=new Set();
+    campanas.forEach(function(c){
+      if(rcL[c]&&!counted.has(c)){totalReach+=rcL[c];counted.add(c);}
+    });
+    document.getElementById("kpi-reach").textContent=totalReach>0?fmtBig(totalReach):"—";
+    document.getElementById("kpi-reach-sub").textContent=totalReach>0?"Reach Consolidado":"\u00a0";
+  } else {
+    document.getElementById("kpi-reach").textContent="—";
+    document.getElementById("kpi-reach-sub").textContent="\u00a0";
+  }
+}
+
+// ─── Main update ──────────────────────────────────────────────────────────────
+function update(){
+  var filtered=applyFilters(dashboardData);
+  var events=groupByEvent(filtered);
+  storedPoints.m1=buildPoints("m1",events);
+  storedPoints.m2=buildPoints("m2",events);
+  storedPoints.m3=buildPoints("m3",events);
+  updateKpis(filtered);
+  renderMatrix(currentTab);
+}
+
+// ─── Cascade campana from marca ───────────────────────────────────────────────
+function cascadeCampana(){
+  var pool=flt.marca==="Todos"?dashboardData:dashboardData.filter(function(r){return r.marca===flt.marca;});
+  var campanas=[...new Set(pool.map(function(r){return r.campana;}).filter(Boolean))].sort();
+  var el=document.getElementById("f-campana");
+  var prev=el.value;
+  el.innerHTML='<option value="Todos">Todos</option>'+
+    campanas.map(function(c){return '<option value="'+eH(c)+'">'+eH(c)+'</option>';}).join("");
+  if(campanas.includes(prev)) el.value=prev; else el.value="Todos";
+}
+
+// ─── Active filter badges ──────────────────────────────────────────────────────
+var FILTER_LABELS={marca:"Marca",canal:"Canal",campana:"Campaña",objetivo:"Objetivo",
+                   estado:"Estado",tipoContenido:"Tipo",anio:"Año"};
+function updateActiveBadges(){
+  var row=document.getElementById("active-filters-row");
+  var badges=[];
+  Object.keys(flt).forEach(function(k){
+    if(flt[k]!=="Todos"){
+      badges.push('<span class="af-badge">'+FILTER_LABELS[k]+': <b>'+eH(flt[k])+'</b>'+
+        '<button class="af-rm" data-key="'+k+'" onclick="clearFilter(this.dataset.key)">&#x2715;</button></span>');
+    }
+  });
+  if(!selInv.includes("Todos")){
+    var nm={Activacion:"Activación",Producto:"Producto",Produccion:"Producción",Sponsoreo:"Sponsoreo"};
+    var label=selInv.map(function(t){return nm[t]||t;}).join("+");
+    badges.push('<span class="af-badge">Inversión: <b>'+label+'</b>'+
+      '<button onclick="clearInv()">✕</button></span>');
+  }
+  row.innerHTML=badges.join("");
+}
+function clearFilter(k){
+  flt[k]="Todos";
+  if(k==="marca"){cascadeCampana();flt.campana="Todos";}
+  if(k==="anio") document.getElementById("f-anio").value="Todos";
+  else if(k==="campana") document.getElementById("f-campana").value="Todos";
+  else if(document.getElementById("f-"+k)) document.getElementById("f-"+k).value="Todos";
+  buildNcOpts(); updateActiveBadges(); updateResetBtn(); update();
+}
+function clearInv(){selInv=["Todos"];syncInvCbs();updInvLabel();updateActiveBadges();updateResetBtn();update();}
+function updateResetBtn(){
+  var active=Object.values(flt).some(function(v){return v!=="Todos";})
+    ||!selInv.includes("Todos")||!selNC.includes("Todos");
+  document.getElementById("btn-reset").classList.toggle("has-filters",active);
+}
+
+// ─── Populate filters ─────────────────────────────────────────────────────────
+function populateSelect(id,vals){
+  var el=document.getElementById(id);
+  el.innerHTML='<option value="Todos">Todos</option>'+
+    vals.map(function(v){return '<option value="'+eH(v)+'">'+eH(v)+'</option>';}).join("");
+}
+function initFilters(){
+  var uniq=function(field){
+    return [...new Set(dashboardData.map(function(r){return r[field];}).filter(Boolean))].sort();
+  };
+  populateSelect("f-marca",     uniq("marca"));
+  populateSelect("f-canal",     uniq("canalPrincipal"));
+  populateSelect("f-objetivo",  uniq("objetivoPrincipal"));
+  populateSelect("f-estado",    uniq("estado"));
+  populateSelect("f-tipo-contenido", uniq("tipoContenido"));
+  cascadeCampana();
+  buildNcOpts();
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded",function(){
+  initFilters();
+  update();
+});
+
+</script>
+</body>
+</html>
