@@ -34,6 +34,22 @@ Historial de cambios significativos por skill. Formato: `### X.Y.Z — YYYY-MM-D
 
 ---
 
+## create-survey
+
+### 1.0.0 — 2026-11-27
+- Versión inicial publicada como renombrado de `survey-creator`.
+- El PAT de Typeform está embebido en el SKILL.md local; en el repo se reemplaza por placeholder `{{TYPEFORM_PAT}}` — reemplazar por el token real antes de usar en otra instancia.
+
+---
+
+## design-survey
+
+### 1.0.0 — 2026-11-27
+- Versión inicial publicada como extracción del flujo de diseño de `survey-helper` (Pasos 1–9).
+- Incluye los 45 xlsx de encuestas de referencia y `surveys_catalog.md`, movidos desde `survey-helper`.
+
+---
+
 ## events-dashboard
 
 ### 1.0.0 — 2026-11-27
@@ -135,15 +151,14 @@ Historial de cambios significativos por skill. Formato: `### X.Y.Z — YYYY-MM-D
 
 ---
 
-## survey-creator
-
-### 1.0.0 — 2026-11-27
-- Versión inicial publicada.
-- El PAT de Typeform se publicó en el repo como placeholder `{{TYPEFORM_PAT}}` en el SKILL.md; reemplazar por el token real antes de usar la skill.
-
----
-
 ## survey-helper
 
+### 2.0.0 — 2026-11-27
+- Refactor completo: convertido en orquestador delgado.
+- El flujo de diseño de encuestas se extrajo a `design-survey`.
+- La capa de API Typeform se renombró a `create-survey`.
+- El dashboard de resultados lo sigue manejando `analyze-survey`.
+- Los 45 xlsx de referencia y `surveys_catalog.md` se movieron a `design-survey`.
+
 ### 1.0.0 — 2026-11-27
-- Versión inicial publicada.
+- Versión inicial publicada (monolítica, incluía diseño, Typeform y análisis).
