@@ -1,0 +1,25 @@
+{
+  "name": "TEST - Tema personalizado",
+  "font": "Montserrat",
+  "colors": {
+    "question": "#FFFFFF",
+    "answer": "#A5B4FC",
+    "button": "#6366F1",
+    "background": "#111827"
+  },
+  "fields": {
+    "alignment": "left",
+    "font_size": "large"
+  },
+  "screens": {
+    "alignment": "center",
+    "font_size": "large"
+  },
+  "rounded_corners": "small",
+  "has_transparent_button": false,
+  "background": {
+    "href": "https://images.typeform.com/images/BACKGROUND_IMAGE_ID",
+    "layout": "fullscreen",
+    "brightness": -0.2
+  }
+}
