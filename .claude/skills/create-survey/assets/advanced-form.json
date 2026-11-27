@@ -1,0 +1,386 @@
+{
+  "title": "TEST - Encuesta avanzada de producto",
+  "workspace": {
+    "href": "https://api.eu.typeform.com/workspaces/WORKSPACE_ID"
+  },
+  "theme": {
+    "href": "https://api.eu.typeform.com/themes/THEME_ID"
+  },
+  "settings": {
+    "language": "es",
+    "is_public": false,
+    "show_progress_bar": true,
+    "show_question_number": true
+  },
+  "welcome_screens": [
+    {
+      "ref": "bienvenida",
+      "title": "¡Queremos conocer tu opinión!",
+      "properties": {
+        "description": "Participá de nuestra encuesta de prueba.",
+        "show_button": true,
+        "button_text": "Empezar encuesta"
+      },
+      "attachment": {
+        "type": "image",
+        "href": "https://images.typeform.com/images/BOTTLE_IMAGE_ID"
+      },
+      "layout": {
+        "type": "split",
+        "placement": "left",
+        "attachment": {
+          "type": "image",
+          "href": "https://images.typeform.com/images/BOTTLE_IMAGE_ID"
+        }
+      }
+    }
+  ],
+  "fields": [
+    {
+      "ref": "nombre",
+      "title": "¿Cuál es tu nombre?",
+      "type": "short_text",
+      "validations": {
+        "required": true,
+        "max_length": 30
+      }
+    },
+    {
+      "ref": "conoce_marca",
+      "title": "¿Conocés nuestra marca?",
+      "type": "yes_no",
+      "validations": {
+        "required": true
+      },
+      "attachment": {
+        "type": "image",
+        "href": "https://images.typeform.com/images/CAN_IMAGE_ID"
+      },
+      "layout": {
+        "type": "split",
+        "placement": "right",
+        "attachment": {
+          "type": "image",
+          "href": "https://images.typeform.com/images/CAN_IMAGE_ID"
+        }
+      }
+    },
+    {
+      "ref": "valoracion",
+      "title": "¿Cómo calificarías tu experiencia?",
+      "type": "rating",
+      "properties": {
+        "steps": 5,
+        "shape": "star"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "ref": "presentacion",
+      "title": "¿Qué presentación preferís?",
+      "type": "picture_choice",
+      "properties": {
+        "allow_multiple_selection": false,
+        "show_labels": true,
+        "choices": [
+          {
+            "ref": "botella",
+            "label": "Botella",
+            "attachment": {
+              "type": "image",
+              "href": "https://images.typeform.com/images/BOTTLE_IMAGE_ID"
+            }
+          },
+          {
+            "ref": "lata",
+            "label": "Lata",
+            "attachment": {
+              "type": "image",
+              "href": "https://images.typeform.com/images/CAN_IMAGE_ID"
+            }
+          }
+        ]
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "ref": "atributos",
+      "title": "¿Qué aspectos valorás más?",
+      "type": "multiple_choice",
+      "properties": {
+        "allow_multiple_selection": true,
+        "choices": [
+          {
+            "ref": "sabor",
+            "label": "Sabor"
+          },
+          {
+            "ref": "precio",
+            "label": "Precio"
+          },
+          {
+            "ref": "diseno",
+            "label": "Diseño"
+          },
+          {
+            "ref": "disponibilidad",
+            "label": "Disponibilidad"
+          },
+          {
+            "ref": "calidad",
+            "label": "Calidad"
+          }
+        ]
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "ref": "intencion",
+      "title": "Del 0 al 10, ¿qué intención de compra tendrías?",
+      "type": "number",
+      "validations": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 10
+      }
+    },
+    {
+      "ref": "correo",
+      "title": "¿Cuál es tu correo electrónico?",
+      "type": "email",
+      "validations": {
+        "required": false
+      }
+    },
+    {
+      "ref": "comentarios",
+      "title": "¿Qué podríamos mejorar?",
+      "type": "long_text",
+      "validations": {
+        "required": false,
+        "max_length": 200
+      }
+    },
+    {
+      "ref": "recomendacion",
+      "title": "¿Qué tan probable es que recomiendes nuestra marca?",
+      "type": "nps",
+      "validations": {
+        "required": true
+      }
+    }
+  ],
+  "variables": {
+    "score": 0
+  },
+  "hidden": [
+    "respondent_id",
+    "campaign",
+    "source"
+  ],
+  "logic": [
+    {
+      "type": "field",
+      "ref": "conoce_marca",
+      "actions": [
+        {
+          "action": "add",
+          "details": {
+            "target": {
+              "type": "variable",
+              "value": "score"
+            },
+            "value": {
+              "type": "constant",
+              "value": 2
+            }
+          },
+          "condition": {
+            "op": "is",
+            "vars": [
+              {
+                "type": "field",
+                "value": "conoce_marca"
+              },
+              {
+                "type": "constant",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "action": "jump",
+          "details": {
+            "to": {
+              "type": "field",
+              "value": "presentacion"
+            }
+          },
+          "condition": {
+            "op": "is",
+            "vars": [
+              {
+                "type": "field",
+                "value": "conoce_marca"
+              },
+              {
+                "type": "constant",
+                "value": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "field",
+      "ref": "presentacion",
+      "actions": [
+        {
+          "action": "add",
+          "details": {
+            "target": {
+              "type": "variable",
+              "value": "score"
+            },
+            "value": {
+              "type": "constant",
+              "value": 1
+            }
+          },
+          "condition": {
+            "op": "is",
+            "vars": [
+              {
+                "type": "field",
+                "value": "presentacion"
+              },
+              {
+                "type": "choice",
+                "value": "botella"
+              }
+            ]
+          }
+        },
+        {
+          "action": "add",
+          "details": {
+            "target": {
+              "type": "variable",
+              "value": "score"
+            },
+            "value": {
+              "type": "constant",
+              "value": 3
+            }
+          },
+          "condition": {
+            "op": "is",
+            "vars": [
+              {
+                "type": "field",
+                "value": "presentacion"
+              },
+              {
+                "type": "choice",
+                "value": "lata"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "field",
+      "ref": "recomendacion",
+      "actions": [
+        {
+          "action": "jump",
+          "details": {
+            "to": {
+              "type": "thankyou",
+              "value": "cierre_alto"
+            }
+          },
+          "condition": {
+            "op": "greater_equal_than",
+            "vars": [
+              {
+                "type": "variable",
+                "value": "score"
+              },
+              {
+                "type": "constant",
+                "value": 5
+              }
+            ]
+          }
+        },
+        {
+          "action": "jump",
+          "details": {
+            "to": {
+              "type": "thankyou",
+              "value": "cierre_general"
+            }
+          },
+          "condition": {
+            "op": "always",
+            "vars": []
+          }
+        }
+      ]
+    }
+  ],
+  "thankyou_screens": [
+    {
+      "ref": "cierre_alto",
+      "title": "¡Gracias, {{field:nombre}}!",
+      "properties": {
+        "description": "Tu puntaje: {{var:score}}.",
+        "show_button": false,
+        "share_icons": false
+      },
+      "attachment": {
+        "type": "image",
+        "href": "https://images.typeform.com/images/CAN_IMAGE_ID"
+      },
+      "layout": {
+        "type": "split",
+        "placement": "right",
+        "attachment": {
+          "type": "image",
+          "href": "https://images.typeform.com/images/CAN_IMAGE_ID"
+        }
+      }
+    },
+    {
+      "ref": "cierre_general",
+      "title": "¡Gracias, {{field:nombre}}, por participar!",
+      "properties": {
+        "description": "Tu puntaje: {{var:score}}.",
+        "show_button": false,
+        "share_icons": false
+      },
+      "attachment": {
+        "type": "image",
+        "href": "https://images.typeform.com/images/BOTTLE_IMAGE_ID"
+      },
+      "layout": {
+        "type": "split",
+        "placement": "left",
+        "attachment": {
+          "type": "image",
+          "href": "https://images.typeform.com/images/BOTTLE_IMAGE_ID"
+        }
+      }
+    }
+  ]
+}
