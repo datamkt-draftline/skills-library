@@ -1,0 +1,40 @@
+{
+  "title": "TEST - Encuesta simple",
+  "workspace": {
+    "href": "https://api.eu.typeform.com/workspaces/WORKSPACE_ID"
+  },
+  "settings": {
+    "language": "es",
+    "is_public": false,
+    "show_progress_bar": true,
+    "show_question_number": true
+  },
+  "fields": [
+    {
+      "ref": "nombre",
+      "title": "¿Cuál es tu nombre?",
+      "type": "short_text",
+      "validations": {
+        "required": true,
+        "max_length": 30
+      }
+    },
+    {
+      "ref": "satisfaccion",
+      "title": "¿Estás satisfecho con nuestro servicio?",
+      "type": "yes_no",
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "ref": "comentarios",
+      "title": "¿Qué podríamos mejorar?",
+      "type": "long_text",
+      "validations": {
+        "required": false,
+        "max_length": 200
+      }
+    }
+  ]
+}
