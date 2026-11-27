@@ -6,13 +6,6 @@ Historial de cambios significativos por skill. Formato: `### X.Y.Z — YYYY-MM-D
 
 ---
 
-## github-updater
-
-### 1.0.0 — 2026-11-03
-- Versión inicial publicada.
-
----
-
 ## analyze-survey
 
 ### 1.0.0 — 2026-10-21
@@ -20,9 +13,44 @@ Historial de cambios significativos por skill. Formato: `### X.Y.Z — YYYY-MM-D
 
 ---
 
+## completion-status
+
+### 1.0.0 — 2026-11-27
+- Versión inicial publicada.
+
+---
+
+## content-tracker
+
+### 1.0.0 — 2026-11-27
+- Versión inicial publicada.
+
+---
+
+## corona-pptx
+
+### 1.0.0 — 2026-11-27
+- Versión inicial publicada.
+
+---
+
+## events-dashboard
+
+### 1.0.0 — 2026-11-27
+- Versión inicial publicada.
+
+---
+
 ## gantt
 
 ### 1.0.0 — 2026-10-16
+- Versión inicial publicada.
+
+---
+
+## github-updater
+
+### 1.0.0 — 2026-11-03
 - Versión inicial publicada.
 
 ---
