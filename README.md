@@ -10,6 +10,8 @@ Repositorio creado por el equipo de draftLine Data Marketing Argentina para el a
 | completion-status | `completion-status` | Genera el reporte HTML de LAS Completion Status ejecutando el script de generación. | action |
 | content-tracker | `content-tracker` | Genera el Content Investment & Impact Tracker HTML a partir del Excel de referencias. | action |
 | corona-pptx | `corona-pptx` | Genera una presentación PPTX editable con la identidad visual de la marca Corona a partir de un brief o materiales aportados. | action |
+| create-survey | `create-survey` | Capa técnica para operar Typeform vía API REST: crear, consultar o modificar formularios, campos, lógica, scoring y respuestas. No diseña encuestas — para eso usar design-survey. | skill |
+| design-survey | `design-survey` | Diseña una encuesta completa de consumidores (8 kits verticales, bloques Agile, estudios previos de 45 encuestas de referencia). | action |
 | events-dashboard | `events-dashboard` | Genera el dashboard ejecutivo de ticketing de Quilmes Rock 2027 (KPIs, forecast, heatmap, SMI e insights). | action |
 | gantt | `gantt` | Genera un Gantt interactivo en HTML desde un Excel, o entrega el template de Excel si el usuario lo solicita. | action |
 | github-updater | `github-updater` | Sincroniza cambios con el repositorio datamkt-draftline/skills-library: sube archivos, valida el checklist para nuevas skills y mantiene CHANGELOG y README al día. | action |
@@ -22,8 +24,7 @@ Repositorio creado por el equipo de draftLine Data Marketing Argentina para el a
 | presentacion-bu-las-chile | `presentacion-bu-las-chile` | Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería Chile. | action |
 | presentacion-bu-las-cmq | `presentacion-bu-las-cmq` | Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería y Maltería Quilmes Argentina. | action |
 | presentacion-bu-las-fnc | `presentacion-bu-las-fnc` | Genera una presentación PPTX editable con la identidad visual BU LAS + FNC. | action |
-| survey-creator | `survey-creator` | Capa técnica para operar Typeform vía API REST (crear/consultar/modificar formularios, campos, lógica, scoring, respuestas). | skill |
-| survey-helper | `survey-helper` | Asistente conversacional que diseña una encuesta de consumidores completa a partir de marca, objetivo y vertical, con bloques recomendados según el "kit". | action |
+| survey-helper | `survey-helper` | Punto de entrada unificado para todo el flujo de encuestas: orquesta design-survey, create-survey y analyze-survey según la intención del usuario. | action |
 
 ## Convenciones
 
