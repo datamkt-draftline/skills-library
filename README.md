@@ -22,6 +22,8 @@ Repositorio creado por el equipo de draftLine Data Marketing Argentina para el a
 | presentacion-bu-las-chile | `presentacion-bu-las-chile` | Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería Chile. | action |
 | presentacion-bu-las-cmq | `presentacion-bu-las-cmq` | Genera una presentación PPTX editable con la identidad visual BU LAS + Cervecería y Maltería Quilmes Argentina. | action |
 | presentacion-bu-las-fnc | `presentacion-bu-las-fnc` | Genera una presentación PPTX editable con la identidad visual BU LAS + FNC. | action |
+| survey-creator | `survey-creator` | Capa técnica para operar Typeform vía API REST (crear/consultar/modificar formularios, campos, lógica, scoring, respuestas). | skill |
+| survey-helper | `survey-helper` | Asistente conversacional que diseña una encuesta de consumidores completa a partir de marca, objetivo y vertical, con bloques recomendados según el "kit". | action |
 
 ## Convenciones
 
