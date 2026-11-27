@@ -132,3 +132,18 @@ Historial de cambios significativos por skill. Formato: `### X.Y.Z — YYYY-MM-D
 
 ### 1.0.0 — 2026-10-30
 - Versión inicial publicada.
+
+---
+
+## survey-creator
+
+### 1.0.0 — 2026-11-27
+- Versión inicial publicada.
+- El PAT de Typeform se publicó en el repo como placeholder `{{TYPEFORM_PAT}}` en el SKILL.md; reemplazar por el token real antes de usar la skill.
+
+---
+
+## survey-helper
+
+### 1.0.0 — 2026-11-27
+- Versión inicial publicada.
